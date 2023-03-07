@@ -42,6 +42,8 @@ CyTokenArray *lex(char *code);
 // misc
 
 #define DIGITS "0123456789."
+#define DEC_PLACE '.'
+
 bool contains(char *str, char c);
 void appendStr(char *dest, char *src);
 char *strFromChar(char str);

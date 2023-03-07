@@ -44,7 +44,7 @@ bool contains(char *str, char c) {
 
 // for a heap-allocated string, dynamically concatenate another string
 void appendStr(char *dest, char *src) {
-    dest = realloc(dest,  (strlen(dest) + strlen(src)) * sizeof(char));
+    dest = realloc(dest, (strlen(dest) + strlen(src)) * sizeof(char));
     strcat(dest, src);
 }
 
@@ -77,7 +77,13 @@ CyTokenArray *lex(char *code) {
                 appendStr(tokens->tokens[tokens->size - 1].src, strFromChar(c)); // dynamically append the char to the token's src
                 // set the state back to ready for next if the next character isn't a digit
                 if (i < strlen(code) - 1) {
-                    if (!contains(DIGITS, code[i + 1])) {
+                    if (
+                        !contains(DIGITS, code[i + 1])
+                        || (
+                            code[i + 1] == DEC_PLACE
+                            && contains(tokens->tokens[tokens->size - 1].src, DEC_PLACE)
+                        )
+                    ) {
                         state = ReadyForNext;
                     }
                 }
