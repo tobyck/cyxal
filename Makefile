@@ -1,8 +1,8 @@
 build: src
-	gcc src/main.c src/*/*.c gmp/libgmp.a -o build/cyxal
+	gcc src/*.c src/*/*.c gmp/libgmp.a -o build/cyxal
 
 run: build/cyxal
-	make build -B
+	make build --always-make
 	./build/cyxal
 
 clean:

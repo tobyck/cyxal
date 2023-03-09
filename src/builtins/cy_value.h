@@ -26,9 +26,13 @@ typedef struct {
     void *other;
 } CyValue;
 
-extern CyValue *new_cy_value(CyType type);
-extern void cy_value_set_num(CyValue *value, char *str);
-extern void cy_value_set_str(CyValue *value, char *str);
+#define init_func(type) extern CyValue *cy_value_new_##type
+
+init_func(empty)(CyType type);
+init_func(num)(char *new_str);
+init_func(str)(char *str);
+init_func(func)(char *src);
+
 extern char *stringify_cy_value(CyValue value);
 extern void free_cy_value(CyValue *value);
 
@@ -37,8 +41,9 @@ typedef struct {
     size_t size;
 } CyValueList;
 
-extern CyValueList *new_cy_value_array();
-extern void push_cy_value(CyValueList *list, CyValue value);
+extern CyValueList *empty_cy_value_list();
+init_func(list)(CyValueList *list);
+extern void push_cy_value(CyValue *list, CyValue value);
 extern void free_cy_value_list(CyValueList *list);
 
 #endif // CYXAL_CY_VALUE_H

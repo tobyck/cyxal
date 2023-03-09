@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include "tokeniser.h"
+#include "../util.h"
 
 // returns a new empty token array
-CyTokenArray *new_cy_token_array() {
+CyTokenArray *new_cy_token_array(void) {
     CyTokenArray *array = malloc(sizeof(CyTokenArray));
     array->tokens = malloc(0); // don't actually allocate any memory but initialise the pointer
     array->size = 0; // set the array's size to 0
@@ -25,27 +26,6 @@ CyToken get_cy_token(CyTokenArray *array, size_t index) {
     // otherwise, return an empty token
     CyToken empty_token = {};
     return empty_token;
-}
-
-// checks if a string contains a certain char
-bool contains(char *str, char c) {
-    if (strchr(str, c) != NULL) {
-        return true;
-    }
-    return false;
-}
-
-// for a heap-allocated string, dynamically concatenate another string
-void append_str(char *dest, char *src) {
-    dest = realloc(dest, (strlen(dest) + strlen(src)) * sizeof(char));
-    strcat(dest, src);
-}
-
-// create a null-terminated string from a char
-char *str_from_chr(char c) {
-    char *str = malloc(2);
-    sprintf(str, "%c", c);
-    return str;
 }
 
 CyTokenArray *tokenise(char *code) {

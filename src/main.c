@@ -30,31 +30,19 @@ void test_lexer() {
 }
 
 void test_cy_value() {
-    CyValue *value1 = new_cy_value(NumberType);
-    cy_value_set_num(value1, "1234");
+    CyValue *list1 = cy_value_new_list(empty_cy_value_list());
+    push_cy_value(list1, *cy_value_new_str("abc"));
 
-    CyValue *value2 = new_cy_value(StringType);
-    cy_value_set_str(value2, "Hello");
+    CyValue *list2 = cy_value_new_list(empty_cy_value_list());
+    push_cy_value(list2, *list1);
+    push_cy_value(list2, *cy_value_new_num("3.2"));
 
-    CyValueList *list1 = new_cy_value_array();
-    push_cy_value(list1, *value1);
-    push_cy_value(list1, *value2);
+    CyValue *list3 = cy_value_new_list(empty_cy_value_list());
+    push_cy_value(list3, *cy_value_new_num(".625"));
+    push_cy_value(list3, *cy_value_new_func("n+H"));
+    push_cy_value(list3, *list2);
 
-    CyValueList *list2 = new_cy_value_array();
-    push_cy_value(list2, *value2);
-
-    CyValue *list_value2 = new_cy_value(ListType);
-    list_value2->other = list2;
-
-    push_cy_value(list1, *list_value2);
-
-    CyValue *list_value1 = new_cy_value(ListType);
-    list_value1->other = list1;
-
-    printf("%s\n", stringify_cy_value(*list_value1));
-
-    free_cy_value_list(list1);
-    free_cy_value_list(list2);
+    printf("%s\n", stringify_cy_value(*list3));
 }
 
 int main() {
