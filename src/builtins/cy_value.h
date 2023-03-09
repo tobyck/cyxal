@@ -1,6 +1,7 @@
 #ifndef CYXAL_CY_VALUE_H
 #define CYXAL_CY_VALUE_H
 
+#include <stdbool.h>
 #include "../../gmp/gmp.h"
 
 // enum for the type of cyxal value
@@ -32,6 +33,8 @@ init_func(empty)(CyType type);
 init_func(num)(char *new_str);
 init_func(str)(char *str);
 init_func(func)(char *src);
+
+extern bool has_type(CyValue value, CyType type);
 
 extern char *stringify_cy_value(CyValue value);
 extern void free_cy_value(CyValue *value);

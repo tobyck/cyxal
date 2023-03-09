@@ -17,12 +17,12 @@ CyValue *cy_value_new_num(char *num_as_str) {
     CyValue *value = cy_value_new_empty(NumberType);
     mpq_init(value->number);
 
-    mpz_t denominator; // arbirtary-precision integer
+    mpz_t denominator; // arbitrary-precision integer
     mpz_init(denominator); // initialise
     mpz_set_ui(denominator, 1); // set to 1
     if (contains(num_as_str, DEC_PLACE)) { // if there's a decimal point in the number
         for (int i = 0; i < strlen(num_as_str); i++) { // for each number in the range [0, strlen(num_as_str))
-            if (num_as_str[strlen(num_as_str) - 1 - i] == '.') { // if we've found the decimal point
+            if (num_as_str[strlen(num_as_str) - 1 - i] == DEC_PLACE) { // if we've found the decimal point
                 mpz_set_ui(denominator, pow(10, i)); // set the denominator to 10 ^ i
                 break;
             }
@@ -31,7 +31,7 @@ CyValue *cy_value_new_num(char *num_as_str) {
 
     char *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically append to with append_str
     for (int i = 0; i < strlen(num_as_str); i++) {
-        if (num_as_str[i] != '.') { // if the char is not a decimal place
+        if (num_as_str[i] != DEC_PLACE) { // if the char is not a decimal place
             append_str(numerator_str, str_from_chr(num_as_str[i])); // create string char char and append to numerator
         }
     }
@@ -63,8 +63,8 @@ CyValue *cy_value_new_num(char *num_as_str) {
 
 #define return_cy_value(type, v) \
     CyValue *value = cy_value_new_empty(type); \
-    value->other = v;                    \
-    return value;                        \
+    value->other = v;                          \
+    return value;                              \
 
 CyValue *cy_value_new_str(char *str) {
     return_cy_value(StringType, str);
@@ -76,6 +76,11 @@ CyValue *cy_value_new_func(char *src) {
 
 CyValue *cy_value_new_list(CyValueList *list) {
     return_cy_value(ListType, list);
+}
+
+// checks if a CyValue has a certain type
+bool has_type(CyValue value, CyType type) {
+    return value.type == type ? true : false;
 }
 
 // returns a string representation of a cyxal value
