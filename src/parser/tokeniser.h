@@ -1,5 +1,5 @@
-#ifndef CYXAL_LEXER_H
-#define CYXAL_LEXER_H
+#ifndef CYXAL_TOKENISER_H
+#define CYXAL_TOKENISER_H
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -21,31 +21,30 @@ typedef struct {
     char *src;
 } CyToken;
 
-// TEMP
-char *stringifyCyToken(CyToken token);
-
-// token array
+// token array struct
 
 typedef struct {
     CyToken *tokens; // pointer to the start of the array - the first token
     size_t size; // the current size of the array
 } CyTokenArray;
 
-CyTokenArray *newCyTokenArray();
-void pushCyToken(CyTokenArray *array, CyToken token);
-CyToken getCyToken(CyTokenArray *array, size_t index);
+// array methods
 
-// the lex function
+extern CyTokenArray *new_cy_token_array();
+extern void push_cy_token(CyTokenArray *array, CyToken token);
+extern CyToken get_cy_token(CyTokenArray *array, size_t index);
 
-CyTokenArray *lex(char *code);
+// the tokenise function
+
+extern CyTokenArray *tokenise(char *code);
 
 // misc
 
 #define DIGITS "0123456789."
 #define DEC_PLACE '.'
 
-bool contains(char *str, char c);
-void appendStr(char *dest, char *src);
-char *strFromChar(char str);
+extern bool contains(char *str, char c);
+extern void append_str(char *dest, char *src);
+extern char *str_from_chr(char str);
 
-#endif // CYXAL_LEXER_H
+#endif // CYXAL_TOKENISER_H
