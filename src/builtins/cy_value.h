@@ -4,17 +4,20 @@
 #include <stdbool.h>
 #include "../../gmp/gmp.h"
 
-// enum for the type of cyxal value
+// enum for the type of CyValue
 
 typedef enum {
     NumberType,
     StringType,
     ListType,
-    FunctionType
+    FunctionType,
+    NullType // for elements which don't push anything
 } CyType;
 
+extern char *stringify_cy_type(CyType type);
+
 /*
- * the cyxal value struct is able to store any type available  in cyxal - numbers
+ * the cyxal value struct is able to store any type available in cyxal - numbers
  * are stored in gmp's arbitrary precision rational type, strings are stored in
  * the void pointer field (cast to char pointer first), functions are stored as cyxal
  * source code which is evaluated as needed, and lists are also stored where strings are,
@@ -27,17 +30,27 @@ typedef struct {
     void *other;
 } CyValue;
 
-#define init_func(type) extern CyValue *cy_value_new_##type
+// functions to create new instances of CyValues
 
-init_func(empty)(CyType type);
-init_func(num)(char *new_str);
-init_func(str)(char *str);
-init_func(func)(char *src);
+#define init_func_dec(type) CyValue *cy_value_new_##type // macro for CyValue initialisation function declaration
 
-extern bool has_type(CyValue value, CyType type);
+extern init_func_dec(empty)(CyType type);
+extern init_func_dec(num)(char *new_str);
+extern init_func_dec(str)(char *str);
+extern init_func_dec(func)(char *src);
+
+// functions to check if a CyValue is a certain type
+
+extern bool cy_value_is_num(CyValue value);
+extern bool cy_value_is_str(CyValue value);
+extern bool cy_value_is_list(CyValue value);
+extern bool cy_value_is_func(CyValue value);
+
+// function to stringify a CyValue to be printed
 
 extern char *stringify_cy_value(CyValue value);
-extern void free_cy_value(CyValue *value);
+
+// struct and functions for a lists of CyValues
 
 typedef struct {
     CyValue *values;
@@ -45,8 +58,7 @@ typedef struct {
 } CyValueList;
 
 extern CyValueList *empty_cy_value_list();
-init_func(list)(CyValueList *list);
+extern init_func_dec(list)(CyValueList *list);
 extern void push_cy_value(CyValue *list, CyValue value);
-extern void free_cy_value_list(CyValueList *list);
 
 #endif // CYXAL_CY_VALUE_H

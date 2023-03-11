@@ -1,5 +1,5 @@
 build: src
-	gcc src/*.c src/*/*.c gmp/libgmp.a -o build/cyxal
+	clang src/*.c src/**/*.c gmp/libgmp.a -o build/cyxal
 
 run: build/cyxal
 	make build --always-make

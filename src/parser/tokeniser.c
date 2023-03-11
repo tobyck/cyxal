@@ -1,6 +1,6 @@
-#include <stdio.h>
+#include <string.h>
 #include "tokeniser.h"
-#include "../util.h"
+#include "../helpers.h"
 
 // returns a new empty token array
 CyTokenArray *new_cy_token_array(void) {
@@ -30,17 +30,17 @@ CyToken get_cy_token(CyTokenArray *array, size_t index) {
 
 CyTokenArray *tokenise(char *code) {
     CyTokenArray *tokens = new_cy_token_array(); // initialise an empty token array
-    LexerState state = ReadyForNext; // set the state as ready for the next toke
+    LexerState state = ReadyForNext; // set the state as ready for the next token
 
     for (int i = 0; i < strlen(code); i++) {
         const char c = code[i];
 
         if (state == ReadyForNext) { // if we're ready for the next token
-            if (contains(DIGITS, c)) { // if the char is a digit (or a dec. place)
+            if (contains(DIGITS_WITH_DEC, c)) { // if the char is a digit (or a dec. place)
                 CyToken token = { NumberToken, str_from_chr(c) }; // create a new number token with the number so far which is stored in src
                 push_cy_token(tokens, token); // push that token to the token array
                 if (i < strlen(code) - 1) { // if we're not at the last char
-                    if (contains(DIGITS, code[i + 1])) { // and the next char is also a digit
+                    if (contains(DIGITS_WITH_DEC, code[i + 1])) { // and the next char is also a digit
                         state = NumberState; // set the state to NumberState to keep building the current token
                     }
                 }
@@ -51,7 +51,7 @@ CyTokenArray *tokenise(char *code) {
                 // set the state back to ready for next if the next character isn't a digit
                 if (i < strlen(code) - 1) {
                     if (
-                        !contains(DIGITS, code[i + 1])
+                        !contains(DIGITS_WITH_DEC, code[i + 1])
                         || (
                             code[i + 1] == DEC_PLACE
                             && contains(tokens->tokens[tokens->size - 1].src, DEC_PLACE)

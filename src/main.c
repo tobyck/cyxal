@@ -5,6 +5,9 @@
 #include <stdio.h>
 #include "parser/tokeniser.h"
 #include "builtins/cy_value.h"
+#include "builtins/elements.h"
+#include "context.h"
+#include "helpers.h"
 
 char *stringify_cy_token(CyToken token) {
     char *str = malloc(64);
@@ -45,8 +48,21 @@ void test_cy_value() {
     printf("%s\n", stringify_cy_value(*list3));
 }
 
+void test_context() {
+    CyContext *ctx = new_cy_context(empty_cy_value_list(), "");
+    printf("%s\n", stringify_cy_value(*halve(ctx, cy_value_new_num("12.3"))));
+}
+
+void test_elements() {
+    CyElementList *elements = get_elements();
+    char **symbols = elements_symbols(elements);
+    for (int i = 0; i < elements->size; i++) {
+        printf("%s\n", symbols[i]);
+    }
+}
+
 int main() {
-    test_cy_value();
+    test_elements();
 
     return 0;
 }

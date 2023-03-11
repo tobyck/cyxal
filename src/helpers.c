@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "util.h"
+#include "helpers.h"
 
 // checks if a string contains a certain char
 bool contains(char *str, char c) {

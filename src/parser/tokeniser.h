@@ -8,12 +8,14 @@
 // token related types
 
 typedef enum {
-    NumberToken
+    NumberToken,
+    ElementToken
 } CyTokenType;
 
 typedef enum {
     ReadyForNext,
-    NumberState
+    NumberState,
+    ElementState
 } LexerState;
 
 typedef struct {

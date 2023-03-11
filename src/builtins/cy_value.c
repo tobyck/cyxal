@@ -3,7 +3,18 @@
 #include <stdio.h>
 #include <math.h>
 #include "cy_value.h"
-#include "../util.h"
+#include "../helpers.h"
+
+// get a string from a CyType
+char *stringify_cy_type(CyType type) {
+    switch (type) {
+        case NumberType: return "Num";
+        case StringType: return "Str";
+        case ListType: return "List";
+        case FunctionType: return "Func";
+        case NullType: return "Null";
+    }
+}
 
 // creates a new CyValue with just the provided type from the enum in cy_value.h
 CyValue *cy_value_new_empty(CyType type) {
@@ -16,6 +27,8 @@ CyValue *cy_value_new_empty(CyType type) {
 CyValue *cy_value_new_num(char *num_as_str) {
     CyValue *value = cy_value_new_empty(NumberType);
     mpq_init(value->number);
+
+    if (num_as_str == NULL) return value;
 
     mpz_t denominator; // arbitrary-precision integer
     mpz_init(denominator); // initialise
@@ -32,7 +45,7 @@ CyValue *cy_value_new_num(char *num_as_str) {
     char *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically append to with append_str
     for (int i = 0; i < strlen(num_as_str); i++) {
         if (num_as_str[i] != DEC_PLACE) { // if the char is not a decimal place
-            append_str(numerator_str, str_from_chr(num_as_str[i])); // create string char char and append to numerator
+            append_str(numerator_str, str_from_chr(num_as_str[i])); // create string from char and append to numerator
         }
     }
 
@@ -61,27 +74,28 @@ CyValue *cy_value_new_num(char *num_as_str) {
 
 // functions to create new CyValues from a C type
 
-#define return_cy_value(type, v) \
-    CyValue *value = cy_value_new_empty(type); \
-    value->other = v;                          \
-    return value;                              \
+#define init_func(type, arg, arg_type) \
+    CyValue *cy_value_new_##arg(arg_type arg) { \
+        CyValue *value = cy_value_new_empty(type); \
+        value->other = arg; \
+        return value; \
+    }
 
-CyValue *cy_value_new_str(char *str) {
-    return_cy_value(StringType, str);
-}
+init_func(StringType, str, char *);
+init_func(FunctionType, func, char *);
+init_func(ListType, list, CyValueList *);
 
-CyValue *cy_value_new_func(char *src) {
-    return_cy_value(FunctionType, src);
-}
+// functions to check if a CyValue has a certain type
 
-CyValue *cy_value_new_list(CyValueList *list) {
-    return_cy_value(ListType, list);
-}
+#define type_check_func(short_type, type_from_enum) \
+    bool cy_value_is_##short_type(CyValue value) { \
+        return value.type == type_from_enum ? true : false; \
+    }
 
-// checks if a CyValue has a certain type
-bool has_type(CyValue value, CyType type) {
-    return value.type == type ? true : false;
-}
+type_check_func(num, NumberType);
+type_check_func(str, StringType);
+type_check_func(list, ListType);
+type_check_func(func, FunctionType);
 
 // returns a string representation of a cyxal value
 char *stringify_cy_value(CyValue value) {
@@ -89,10 +103,32 @@ char *stringify_cy_value(CyValue value) {
         case NumberType:
             return mpq_get_str(NULL, 10, value.number); // use a builtin gmp function to stringify into base 10
         case StringType: {
-            char *str = malloc(strlen(value.other) + 2); // allocate enough memory to allow for the string plus quotes
-            strcpy(str, "\"");
-            strcat(str, value.other);
-            strcat(str, "\"");
+            return value.other;
+        }
+        case ListType: {
+            CyValueList *list = (CyValueList *)value.other; // variable for the list case to a (CyValueList *) from (void *)
+            char *str = malloc(2);
+            strcpy(str, "[ ");
+            for (int i = 0; i < list->size; i++) {
+                char *item;
+                bool should_free = false;
+                if (cy_value_is_str(list->values[i])) {
+                    item = malloc(strlen(list->values[i].other) + 2);
+                    strcpy(item, "\"");
+                    strcat(item, list->values[i].other);
+                    strcat(item, "\"");
+                    should_free = true;
+                } else {
+                    item = stringify_cy_value(list->values[i]); // stringify the item to append
+                }
+                str = realloc(str, strlen(str) + strlen(item) + 2); // reallocate memory for that, the comma and space
+                strcat(str, item);
+                strcat(str, ", ");
+                if (should_free) {
+                    free(item);
+                }
+            }
+            strcpy(str + strlen(str) - 2, " ]"); // replace the last ", " with " ]"
             return str;
         }
         case FunctionType: {
@@ -100,26 +136,9 @@ char *stringify_cy_value(CyValue value) {
             sprintf(str, "<lambda \"%s\">", (char *)value.other);
             return str;
         }
-        case ListType: {
-            CyValueList *list = (CyValueList *)value.other; // variable for the list case to a (CyValueList *) from (void *)
-            char *str = malloc(2);
-            strcpy(str, "[ ");
-            for (int i = 0; i < list->size; i++) {
-                char *item = stringify_cy_value(list->values[i]); // stringify the item to append
-                str = realloc(str, strlen(str) + strlen(item) + 2); // reallocate memory for that, the comma and space
-                strcat(str, item);
-                strcat(str, ", ");
-            }
-            strcpy(str + strlen(str) - 2, " ]"); // replace the last ", " with " ]"
-            return str;
-        }
+        case NullType:
+            return "<null>";
     }
-}
-
-// free memory for a CyValue
-void free_cy_value(CyValue *value) {
-    free(value->other);
-    free(value);
 }
 
 // creates an empty CyValueList; memory isn't allocated although pointers are initialised
@@ -135,10 +154,4 @@ void push_cy_value(CyValue *list, CyValue value) {
     CyValueList *as_list = list->other; // get a pointer to the actual list not CyValue
     as_list->values = realloc(as_list->values, (as_list->size + 1) * sizeof(value)); // realloc memory for the new item
     as_list->values[as_list->size++] = value; // set the last slot of the array to the new item and increment size afterwards
-}
-
-// free memory for a CyValueList
-void free_cy_value_list(CyValueList *list) {
-    free(list->values);
-    free(list);
 }
