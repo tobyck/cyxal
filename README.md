@@ -12,7 +12,7 @@ Note: this project is set up for UNIX-based systems and Windows support has not 
 
 ### Environment
 
-If you're a collaborator of the GitHub repository, just clone the repo, and you should be ready to go.
+If you're a collaborator of the GitHub repository just clone the repo, and you should be ready to go, otherwise make a fork of the repository and sumbit pull requests.
 
 To build the code, run `make build` (see the `Makefile` for more info), or to build and run the executable afterwards, use `make run` (in CLion these make targets can be configured in the panel in the top right next the run/build buttons for a much easier process).
 
@@ -25,7 +25,7 @@ Thank you!
 ### Style Guide
 
 - Variable/argument names are `lower_snake_case`
-- Types, structs, enums, etc. are `PascalCase`
+- Structs, enums, and unions are `PascalCase`
 - Macros are also `lower_snake_case` unless they are constants, in which case they should be `UPPER_SNAKE_CASE`
 - The `*` for pointers sits next to the identifier with a space after the type
 - Comment where you think it's necessary, but please provide a comment before function definitions describing what it does.

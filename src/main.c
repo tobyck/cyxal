@@ -7,7 +7,6 @@
 #include "builtins/cy_value.h"
 #include "builtins/elements.h"
 #include "context.h"
-#include "helpers.h"
 
 char *stringify_cy_token(CyToken token) {
     char *str = malloc(64);
@@ -16,9 +15,9 @@ char *stringify_cy_token(CyToken token) {
 }
 
 void test_lexer() {
-    char *input = malloc(16);
+    char *input = malloc(128);
     printf("code: ");
-    fgets(input, 256, stdin);
+    fgets(input, 128, stdin);
     input[strcspn(input, "\n")] = 0;
 
     CyTokenArray *tokens = tokenise(input);
@@ -62,7 +61,5 @@ void test_elements() {
 }
 
 int main() {
-    test_lexer();
-
     return 0;
 }

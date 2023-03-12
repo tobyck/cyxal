@@ -52,7 +52,7 @@ CyTokenArray *tokenise(char *code) {
             } else if (contains(DIGRAPHS, c) || has_element(elements, c_as_str)) {
                 // add a token with the current char
                 push_cy_token(tokens, (CyToken){ ElementToken, c_as_str });
-                if (contains(DIGRAPHS, c)) { // if the char is a digraph
+                if (contains(DIGRAPHS, c) && i < strlen(code) - 1) { // if the char is a digraph, and it's not the last char
                     // append the next char in the code to the last token and go to the next loop iteration
                     append_str(tokens->tokens[tokens->size - 1].src, str_from_chr(code[++i]));
                 }
