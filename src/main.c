@@ -62,7 +62,7 @@ void test_elements() {
 }
 
 int main() {
-    test_elements();
+    test_lexer();
 
     return 0;
 }

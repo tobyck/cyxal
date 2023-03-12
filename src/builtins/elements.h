@@ -42,6 +42,7 @@ typedef struct {
 extern CyElementList *empty_cy_element_list(void);
 extern void add_element(CyElementList *list, CyElement element);
 extern CyElementList *get_elements(void);
+extern bool has_element(CyElementList *list, char *symbol);
 extern CyElementFunc func_for_element(CyElementList *list, char *symbol);
 extern char **elements_symbols(CyElementList *list);
 

@@ -86,6 +86,16 @@ void add_element(CyElementList *list, CyElement element) {
     list->elements[list->size++] = element;
 }
 
+// checks if an element is in a list of elements (used in the lexer)
+bool has_element(CyElementList *list, char *symbol) {
+    for (int i = 0; i < list->size; i++) {
+        if (strcmp(list->elements[i].symbol, symbol) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // given a cyxal element (e.g. "+") return the corresponding function
 CyElementFunc func_for_element(CyElementList *list, char *symbol) {
     for (int i = 0; i < list->size; i++) {
