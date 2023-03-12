@@ -61,5 +61,6 @@ void test_elements() {
 }
 
 int main() {
+    test_lexer();
     return 0;
 }
