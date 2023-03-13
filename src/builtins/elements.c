@@ -67,7 +67,7 @@ nilad(alphabet) {
  * Overloads:
  *  (Any x) -> print(x)
  * */
-monad(print) {
+monad(cy_print) {
     append_str(ctx->output, stringify_cy_value(*lhs));
     return cy_value_new_empty(NullType); // return nothing
 }
@@ -119,9 +119,9 @@ CyElementList *get_elements(void) {
     CyElementList *elements = empty_cy_element_list();
 
     add_element(elements, (CyElement){ "+", .func.dyad = add });
-    add_element(elements, (CyElement){ "½", .func.dyad = add });
-    add_element(elements, (CyElement){ "ka", .func.dyad = add });
-    add_element(elements, (CyElement){ ",", .func.dyad = add });
+    add_element(elements, (CyElement){ "½", .func.monad = halve });
+    add_element(elements, (CyElement){ "ka", .func.nilad = alphabet });
+    add_element(elements, (CyElement){ ",", .func.monad = cy_print });
 
     return elements;
 }

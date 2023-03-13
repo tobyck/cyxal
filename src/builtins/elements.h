@@ -15,7 +15,7 @@
 extern dyad(add);
 extern monad(halve);
 extern nilad(alphabet);
-extern monad(print);
+extern monad(cy_print);
 
 // types for storing element
 
