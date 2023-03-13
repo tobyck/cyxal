@@ -8,13 +8,15 @@
 #include "builtins/elements.h"
 #include "context.h"
 
+#include "../tests/test_lexer.c"
+
 char *stringify_cy_token(CyToken token) {
     char *str = malloc(64);
     sprintf(str, "{ type: %d, src: \"%s\" }", token.type, token.src);
     return str;
 }
 
-void test_lexer() {
+void test_lexer_input() {
     char *input = malloc(128);
     printf("code: ");
     fgets(input, 128, stdin);
@@ -61,6 +63,8 @@ void test_elements() {
 }
 
 int main() {
-    test_lexer();
+    test_lexer_input();
+
+    //test_lexer();
     return 0;
 }
