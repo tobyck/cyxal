@@ -1,5 +1,6 @@
 # Todo list
 
+- [X] Add support for x86 processors
 - [ ] Find a good way to store unicode characters
 - [ ] Establish a way to have varying output arities for elements
 - [ ] Implement some simple modifiers
