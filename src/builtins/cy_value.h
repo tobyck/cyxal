@@ -2,7 +2,7 @@
 #define CYXAL_CY_VALUE_H
 
 #include <stdbool.h>
-#include "../../gmp/gmp.h"
+#include <gmp.h>
 
 // enum for the type of CyValue
 

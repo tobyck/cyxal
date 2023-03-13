@@ -1,22 +1,14 @@
-GMP_ARM = gmp/arm/libgmp.a # path to lib file for arm
-GMP_X86 = gmp/x86/libgmp.a # path for x86
+COMPILER = clang
+OUT_DIR = ./build/mac
 
-ifeq ($(ARCH), arm) # if running arm
-	GMP_PATH = $(GMP_ARM) # change path to lib file
-	OUTPUT_FILE = ./build/arm/cyxal
-else ifeq ($(ARCH), x86)
-	GMP_PATH = $(GMP_X86)
-    OUTPUT_FILE = build/x86/cyxal
+ifeq ($(shell uname -s), Linux)
+	OUT_DIR = ./build/linux
 endif
+
+OUTPUT_FILE = $(OUT_DIR)/cyxal
 
 build: src
-ifndef ARCH
-	@echo "Please specify an architecture to build for."
-	@exit 1
-endif
-	@echo "Building for $(ARCH)..."
-	@clang src/*.c src/**/*.c $(GMP_PATH) -o $(OUTPUT_FILE)
-	@echo "Done."
+	$(COMPILER) src/*.c src/**/*.c -lgmp -o $(OUTPUT_FILE)
 
 run: $(OUTPUT_FILE)
 	@make build
@@ -24,3 +16,19 @@ run: $(OUTPUT_FILE)
 
 clean:
 	rm build/**/*
+
+install-gmp:
+ifndef DIR
+	@echo "Please specify a directory with DIR=<path/for/gmp>"
+	@exit 1;
+endif
+	curl https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz --output $(DIR)gmp-6.2.1.tar.xz
+	tar -xf $(DIR)/gmp-6.2.1.tar.xz
+	cd gmp-6.2.1
+	./configure
+	make
+	make install
+
+include-gmp:
+	cp $(DIR)/.libs/libgmp.10.dylib /usr/local/lib
+	cp $(DIR)/gmp.h /usr/local/include

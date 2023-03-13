@@ -12,7 +12,8 @@ Note: this project is set up for UNIX-based systems and Windows support has not 
 
 ### Environment
 
-If you're a collaborator of the GitHub repository just clone the repo, and you should be ready to go, otherwise make a fork of the repository and sumbit pull requests.
+First make a fork of this repository, or if you have collaborator permissions just make a clone. Once you've done either of those, you'll need to install GMP (The GNU Multiple Precision
+Arithmetic Library, which is used to allow arbitrary precision rationals like in Vyxal). To do this, run `make install-gmp DIR=<path/for/gmp>` inside the `cyxal/` directory where `DIR` is the path to install GMP to. You can put it anywhere you like, *except* in the `cyxal/` folder — `~/Downloads` is fine. If you're on Linux this is all you need to do, but on Mac I found that the `libgmp.dylib` and `gmp.h` needed to be manually copied into `/usr/local/lib` and `/usr/local/include` respectively. This can be done with `make include-gmp`.
 
 To build the code, run `make build` (see the `Makefile` for more info), or to build and run the executable afterwards, use `make run` (in CLion these make targets can be configured in the panel in the top right next the run/build buttons for a much easier process).
 
@@ -40,5 +41,4 @@ Below are descriptions of what each folder is for.
   - `parser`: Contains the tokeniser to split code into a flat list of simple tokens e.g. "number" or "open structure", and the parser which groups those tokens to be executed by the interpreter.
   - `builtins`: Contains types and methods regarding the `CyValue` struct which is used to store any type available in Cyxal, and files containing the elements, modifiers, and structures.
 - `build`: Files from `src` are compiled into an executable which lives here. This folder can be emptied with `make clean`.
-- `gmp`: Files for the [GMP Multiple Precision
-  Arithmetic Library](https://gmplib.org) which is used to allow arbitrary precision rationals like in Vyxal.
+- `gmp`: Files for the GMP.
