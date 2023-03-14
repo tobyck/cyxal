@@ -40,4 +40,5 @@ extern CyToken get_cy_token(CyTokenArray *array, size_t index);
 
 extern CyTokenArray *tokenise(wchar_t *code);
 
+extern wchar_t *stringify_cy_token(CyToken token);
 #endif // CYXAL_TOKENISER_H

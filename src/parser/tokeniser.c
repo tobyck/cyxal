@@ -80,3 +80,9 @@ CyTokenArray *tokenise(wchar_t *code) {
 
     return tokens;
 }
+
+wchar_t *stringify_cy_token(CyToken token) {
+    wchar_t *str = malloc(256);
+    swprintf(str, 1024, L"{ type: %d, src: \"%ls\" }", token.type, token.src);
+    return str;
+}

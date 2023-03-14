@@ -12,12 +12,6 @@
 #include <wchar.h>
 #include "../tests/test_lexer.c"
 
-wchar_t *stringify_cy_token(CyToken token) {
-    wchar_t *str = malloc(256);
-    swprintf(str, 1024, L"{ type: %d, src: \"%ls\" }", token.type, token.src);
-    return str;
-}
-
 void test_lexer_input() {
     wchar_t *input = malloc(128);
     printf("code: ");
@@ -67,7 +61,7 @@ void test_elements() {
 int main() {
     setlocale(LC_ALL,"");
 
-    test_lexer_input();
+    //test_lexer_input();
 
     test_lexer();
     return 0;
