@@ -8,14 +8,37 @@ Well, you can't use it at all yet so... reading the next section would be greatl
 
 ## Contributing
 
-Note: this project is set up for UNIX-based systems and Windows support has not yet been added. Help from a Windows user would be very helpful.
+Note: this project is set up for UNIX-based systems and Windows support has not yet been added.
+
+First make a fork of this repository, or if you have collaborator permissions just make a clone. Once you've done either of those, move on to installing GMP.
+
+### Installing GMP
+
+In order to have arbitrary-precision rationals like Vyxal does, Cyxal uses GMP — The GNU Multiple Precision
+Arithmetic Library. Installation processes may vary but for most Mac or Linux systems, run the following commands and make sure you're not in the `cyxal/` directory, `~/Downloads` is fine.
+
+```bash
+curl https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz --output gmp-6.2.1.tar.xz
+tar -xf gmp-6.2.1.tar.xz
+cd gmp-6.2.1
+./configure
+make
+make check
+make install
+```
+
+On Linux this should be enough, but on Mac you need to manually copy `libgmp.10.dylib` and `gmp.h` to `/usr/local/lib` and `/usr/local/include` respectively. From the same `gmp-6.2.1` you were just in, run:
+
+```bash
+cp .libs/libgmp.10.dylib /usr/local/lib
+cp gmp.h /usr/local/include
+```
+
+If things still aren't working, all I can say is that the official GMP website is [here](https://gmplib.org), and good luck.
 
 ### Environment
 
-First make a fork of this repository, or if you have collaborator permissions just make a clone. Once you've done either of those, you'll need to install GMP (The GNU Multiple Precision
-Arithmetic Library, which is used to allow arbitrary precision rationals like in Vyxal). To do this, run `make install-gmp DIR=<path/for/gmp>` inside the `cyxal/` directory where `DIR` is the path to install GMP to. You can put it anywhere you like, *except* in the `cyxal/` folder — `~/Downloads` is fine. If you're on Linux this is all you need to do, but on Mac I found that the `libgmp.dylib` and `gmp.h` needed to be manually copied into `/usr/local/lib` and `/usr/local/include` respectively. This can be done with `make include-gmp DIR=<path/to/gmp>` using the same `DIR` value as before with `gmp-6.2.1` appended to it, for example: `~/Downloads/gmp-6.2.1`.
-
-To build the code, run `make build` (see the `Makefile` for more info), or to build and run the executable afterwards, use `make run` (in CLion these make targets can be configured in the panel in the top right next the run/build buttons for a much easier process).
+To build the code, run `make build` (see the makefile for what this does exactly), or to build and run the executable afterwards, use `make run` (in CLion these make targets can be configured in the panel in the top right next the run/build buttons for a much easier process).
 
 Before you go to make more changes, make sure to pull the latest code from the master branch, and I would recommend managing this through your IDE's Git interface. As for specific IDE's it's up to you, but at the time of writing this I'm using JetBrains CLion which comes free with the GitHub education pack.
 
