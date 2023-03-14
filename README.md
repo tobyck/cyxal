@@ -30,6 +30,7 @@ Thank you!
 - Macros are also `lower_snake_case` unless they are constants, in which case they should be `UPPER_SNAKE_CASE`
 - The `*` for pointers sits next to the identifier with a space after the type
 - Comment where you think it's necessary, but please provide a comment before function definitions describing what it does.
+- If in doubt, look around and go off what you see.
 
 ### Folder Structure
 

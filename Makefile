@@ -19,10 +19,10 @@ clean:
 
 install-gmp:
 ifndef DIR
-	@echo "Please specify a directory with DIR='path/for/gmp/'"
+	@echo "Please specify a directory with DIR=<path/for/gmp/>"
 	@exit 1;
 endif
-	curl https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz --output $(DIR)gmp-6.2.1.tar.xz
+	curl https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz --output $(DIR)/gmp-6.2.1.tar.xz
 	tar -xf $(DIR)/gmp-6.2.1.tar.xz
 	cd gmp-6.2.1
 	./configure
