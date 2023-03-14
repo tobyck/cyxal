@@ -5,13 +5,13 @@
 
 typedef struct {
     CyValueList *args;
-    char *flags;
-    char *output;
-    char *error;
+    wchar_t *flags;
+    wchar_t *output;
+    wchar_t *error;
 } CyContext;
 
-extern CyContext *new_cy_context(CyValueList *args, char *flags);
+extern CyContext *new_cy_context(CyValueList *args, wchar_t *flags);
 // todo: change to allow formatting string directly in them - a cy_errorf sort-of thing
-extern void cy_error(CyContext *ctx, char *message);
+extern void cy_error(CyContext *ctx, wchar_t *message);
 
 #endif // CYXAL_CONTEXT_H

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "elements.h"
 #include "../helpers.h"
+#include <wchar.h>
 
 /*
  * Element: +
@@ -20,10 +21,10 @@ dyad(add) {
         ret = cy_value_new_num(NULL);
         mpq_add(ret->number, lhs->number, rhs->number);
     } else if (cy_value_is_str(*lhs) || cy_value_is_str(*rhs)) {
-        ret = cy_value_new_str(strcat(lhs->other, rhs->other));
+        ret = cy_value_new_str(wcscat(lhs->other, rhs->other));
     } else {
-        char err_msg[65];
-        sprintf(err_msg, "Invalid combination of types for element 'add': '%s' and '%s'", stringify_cy_type(lhs->type), stringify_cy_type(rhs->type));
+        wchar_t err_msg[65];
+        swprintf(err_msg, 1024, L"Invalid combination of types for element 'add': '%ls' and '%ls'", stringify_cy_type(lhs->type), stringify_cy_type(rhs->type));
         cy_error(ctx, err_msg);
     }
 
@@ -41,10 +42,10 @@ monad(halve) {
 
     if (cy_value_is_num(*lhs)) {
         ret = cy_value_new_num(NULL);
-        mpq_div(ret->number, lhs->number, cy_value_new_num("2")->number);
+        mpq_div(ret->number, lhs->number, cy_value_new_num(L"2")->number);
     } else {
-        char err_msg[39];
-        sprintf(err_msg, "Invalid type '%s' for element 'halve'", stringify_cy_type(lhs->type));
+        wchar_t err_msg[39];
+        swprintf(err_msg, 1024, L"Invalid type '%ls' for element 'halve'", stringify_cy_type(lhs->type));
         cy_error(ctx, err_msg);
     }
 
@@ -58,7 +59,7 @@ monad(halve) {
  *  () -> "abcdefghijklmnopqrstuvwxyz"
  * */
 nilad(alphabet) {
-    return cy_value_new_str("abcdefghijklmnopqrstuvwxyz");
+    return cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz");
 }
 
 /*
@@ -87,9 +88,9 @@ void add_element(CyElementList *list, CyElement element) {
 }
 
 // checks if an element is in a list of elements (used in the lexer)
-bool has_element(CyElementList *list, char *symbol) {
+bool has_element(CyElementList *list, wchar_t *symbol) {
     for (int i = 0; i < list->size; i++) {
-        if (strcmp(list->elements[i].symbol, symbol) == 0) {
+        if (wcscmp(list->elements[i].symbol, symbol) == 0) {
             return true;
         }
     }
@@ -97,9 +98,9 @@ bool has_element(CyElementList *list, char *symbol) {
 }
 
 // given a cyxal element (e.g. "+") return the corresponding function
-CyElementFunc func_for_element(CyElementList *list, char *symbol) {
+CyElementFunc func_for_element(CyElementList *list, wchar_t *symbol) {
     for (int i = 0; i < list->size; i++) {
-        if (strcmp(list->elements[i].symbol, symbol) == 0) {
+        if (wcscmp(list->elements[i].symbol, symbol) == 0) {
             return list->elements[i].func;
         }
     }
@@ -107,8 +108,8 @@ CyElementFunc func_for_element(CyElementList *list, char *symbol) {
 }
 
 // gets an array of all the symbols for the elements
-char **elements_symbols(CyElementList *list) {
-    char **symbols = malloc(list->size * sizeof(char *));
+wchar_t **elements_symbols(CyElementList *list) {
+    wchar_t **symbols = malloc(list->size * sizeof(wchar_t));
     for (int i = 0; i < list->size; i++) {
         symbols[i] = list->elements[i].symbol;
     }
@@ -118,10 +119,10 @@ char **elements_symbols(CyElementList *list) {
 CyElementList *get_elements(void) {
     CyElementList *elements = empty_cy_element_list();
 
-    add_element(elements, (CyElement){ "+", .func.dyad = add });
-    add_element(elements, (CyElement){ "½", .func.monad = halve });
-    add_element(elements, (CyElement){ "ka", .func.nilad = alphabet });
-    add_element(elements, (CyElement){ ",", .func.monad = cy_print });
+    add_element(elements, (CyElement){ L"+", .func.dyad = add });
+    add_element(elements, (CyElement){ L"½", .func.monad = halve });
+    add_element(elements, (CyElement){ L"ka", .func.nilad = alphabet });
+    add_element(elements, (CyElement){ L",", .func.monad = cy_print });
 
     return elements;
 }

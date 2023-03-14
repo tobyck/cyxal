@@ -20,7 +20,7 @@ typedef enum {
 
 typedef struct {
     CyTokenType type;
-    char *src;
+    wchar_t *src;
 } CyToken;
 
 // token array struct
@@ -38,6 +38,6 @@ extern CyToken get_cy_token(CyTokenArray *array, size_t index);
 
 // the tokenise function
 
-extern CyTokenArray *tokenise(char *code);
+extern CyTokenArray *tokenise(wchar_t *code);
 
 #endif // CYXAL_TOKENISER_H

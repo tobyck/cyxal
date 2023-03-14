@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #include "context.h"
 
-CyContext *new_cy_context(CyValueList *args, char *flags) {
+CyContext *new_cy_context(CyValueList *args, wchar_t *flags) {
     CyContext *ctx = malloc(sizeof(CyContext));
     ctx->args = args;
     ctx->flags = flags;
@@ -12,6 +13,6 @@ CyContext *new_cy_context(CyValueList *args, char *flags) {
     return ctx;
 }
 
-void cy_error(CyContext *ctx, char *message) {
-    ctx->error = strcat(ctx->error, message);
+void cy_error(CyContext *ctx, wchar_t *message) {
+    ctx->error = wcscat(ctx->error, message);
 }

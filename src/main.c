@@ -7,25 +7,27 @@
 #include "builtins/cy_value.h"
 #include "builtins/elements.h"
 #include "context.h"
-
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
 #include "../tests/test_lexer.c"
 
-char *stringify_cy_token(CyToken token) {
-    char *str = malloc(64);
-    sprintf(str, "{ type: %d, src: \"%s\" }", token.type, token.src);
+wchar_t *stringify_cy_token(CyToken token) {
+    wchar_t *str = malloc(256);
+    swprintf(str, 1024, L"{ type: %d, src: \"%ls\" }", token.type, token.src);
     return str;
 }
 
 void test_lexer_input() {
-    char *input = malloc(128);
+    wchar_t *input = malloc(128);
     printf("code: ");
-    fgets(input, 128, stdin);
-    input[strcspn(input, "\n")] = 0;
+    fgetws(input, 128, stdin);
+    input[wcscspn(input, L"\n")] = 0;
 
     CyTokenArray *tokens = tokenise(input);
 
     for (int i = 0; i < tokens->size; i++) {
-        printf("%s\n", stringify_cy_token(tokens->tokens[i]));
+        printf("%ls\n", stringify_cy_token(tokens->tokens[i]));
     }
 
     free(input);
@@ -35,36 +37,38 @@ void test_lexer_input() {
 
 void test_cy_value() {
     CyValue *list1 = cy_value_new_list(empty_cy_value_list());
-    push_cy_value(list1, *cy_value_new_str("abc"));
+    push_cy_value(list1, *cy_value_new_str(L"abc"));
 
     CyValue *list2 = cy_value_new_list(empty_cy_value_list());
     push_cy_value(list2, *list1);
-    push_cy_value(list2, *cy_value_new_num("3.2"));
+    push_cy_value(list2, *cy_value_new_num(L"3.2"));
 
     CyValue *list3 = cy_value_new_list(empty_cy_value_list());
-    push_cy_value(list3, *cy_value_new_num(".625"));
-    push_cy_value(list3, *cy_value_new_func("n+H"));
+    push_cy_value(list3, *cy_value_new_num(L".625"));
+    push_cy_value(list3, *cy_value_new_func(L"n+H"));
     push_cy_value(list3, *list2);
 
-    printf("%s\n", stringify_cy_value(*list3));
+    printf("%ls\n", stringify_cy_value(*list3));
 }
 
 void test_context() {
-    CyContext *ctx = new_cy_context(empty_cy_value_list(), "");
-    printf("%s\n", stringify_cy_value(*halve(ctx, cy_value_new_num("12.3"))));
+    CyContext *ctx = new_cy_context(empty_cy_value_list(), L"");
+    printf("%ls\n", stringify_cy_value(*halve(ctx, cy_value_new_num(L"12.3"))));
 }
 
 void test_elements() {
     CyElementList *elements = get_elements();
-    char **symbols = elements_symbols(elements);
+    wchar_t **symbols = elements_symbols(elements);
     for (int i = 0; i < elements->size; i++) {
-        printf("%s\n", symbols[i]);
+        printf("%ls\n", symbols[i]);
     }
 }
 
 int main() {
+    setlocale(LC_ALL,"");
+
     test_lexer_input();
 
-    //test_lexer();
+    test_lexer();
     return 0;
 }

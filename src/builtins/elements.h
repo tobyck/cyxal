@@ -10,7 +10,7 @@
 #define monad(name) CyValue *name(CyContext *ctx, CyValue *lhs)
 #define dyad(name) CyValue *name(CyContext *ctx, CyValue *lhs, CyValue *rhs)
 
-// declerations for elements (to be defined in elements.c)
+// declarations for elements (to be defined in elements.c)
 
 extern dyad(add);
 extern monad(halve);
@@ -26,7 +26,7 @@ typedef union {
 } CyElementFunc;
 
 typedef struct {
-    char *symbol; // the char(s) used in Cyxal to use the element e.g. `W` or `kA`
+    wchar_t *symbol; // the char(s) used in Cyxal to use the element e.g. `W` or `kA`
     CyElementFunc func; // pointer to a function for the element
 } CyElement;
 
@@ -42,8 +42,8 @@ typedef struct {
 extern CyElementList *empty_cy_element_list(void);
 extern void add_element(CyElementList *list, CyElement element);
 extern CyElementList *get_elements(void);
-extern bool has_element(CyElementList *list, char *symbol);
-extern CyElementFunc func_for_element(CyElementList *list, char *symbol);
-extern char **elements_symbols(CyElementList *list);
+extern bool has_element(CyElementList *list, wchar_t *symbol);
+extern CyElementFunc func_for_element(CyElementList *list, wchar_t *symbol);
+extern wchar_t **elements_symbols(CyElementList *list);
 
 #endif // CYXAL_ELEMENTS_H

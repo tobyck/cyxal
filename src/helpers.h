@@ -5,10 +5,10 @@
 
 // constants
 
-#define DIGITS "0123456789"
-#define DEC_PLACE '.'
-#define DIGITS_WITH_DEC "0123456789."
-#define DIGRAPHS "k∆øÞ¨"
+#define DIGITS L"0123456789"
+#define DEC_PLACE L'.'
+#define DIGITS_WITH_DEC L"0123456789."
+#define DIGRAPHS L"k∆øÞ¨"
 #define COMPRESSED_STR_DEL L'«'
 #define COMPRESSED_NUM_DEL L'»'
 #define STRING_DELIMETER L'`'
@@ -25,8 +25,11 @@
 
 // useful functions
 
-extern bool contains(char *str, char c);
-extern void append_str(char *dest, char *src);
-extern char *str_from_chr(char str);
+extern bool contains(wchar_t *str, wchar_t c);
+extern void append_str(wchar_t *dest, wchar_t *src);
+extern wchar_t *str_from_chr(wchar_t str);
+extern wchar_t *str_to_wcs(char *c);
+extern char *wcs_to_str(wchar_t *wc);
+
 
 #endif // CYXAL_HELPERS_H
