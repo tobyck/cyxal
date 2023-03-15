@@ -9,7 +9,7 @@
 
 typedef enum {
     NumberToken,
-    ElementToken,
+    GeneralToken, // Elements / modifiers / structures / whatever. The parser deals with this
     StringToken,
     CompressedStringToken,
     CompressedNumberToken,

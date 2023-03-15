@@ -1,6 +1,5 @@
 #include "lexer.h"
 #include "../helpers.h"
-#include "../builtins/elements.h"
 #include <stdbool.h>
 
 // returns a new empty token array
@@ -30,8 +29,6 @@ wchar_t *stringify_cy_token(CyToken token) {
 CyTokenArray *lex(wchar_t *code) {
     CyTokenArray *tokens = new_cy_token_array(); // initialise an empty token array
 
-    CyElementList *elements = get_elements();
-
     for (int i = 0; i < wcslen(code); i++) {
         wchar_t c = code[i];
         wchar_t *c_as_str = chr_to_str(c);
@@ -49,9 +46,9 @@ CyTokenArray *lex(wchar_t *code) {
             }
             if (i < wcslen(code)) i--; // if not eof shift back to the last char
         // if the char is a digraph modifier or single-char element
-        } else if (contains(DIGRAPHS, c) || has_element(elements, c_as_str)) {
+        } else if (contains(DIGRAPHS, c)) {
             // add a token with the current char
-            push_cy_token(tokens, (CyToken){ ElementToken, c_as_str });
+            push_cy_token(tokens, (CyToken){ GeneralToken, c_as_str });
             if (contains(DIGRAPHS, c) && i < wcslen(code) - 1) { // if the char is a digraph, and it's not the last char
                 // append the next char in the code to the last token and go to the next loop iteration
                 append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[++i]));
@@ -61,9 +58,12 @@ CyTokenArray *lex(wchar_t *code) {
             for (; i < wcslen(code) && code[i] != c; i++) append_str(&c_as_str, chr_to_str(code[i]));
             if (i < wcslen(code)) append_str(&c_as_str, chr_to_str(c)); // append start
             push_cy_token(tokens, (CyToken) {c == COMPRESSED_STR_DEL ? CompressedStringToken : CompressedNumberToken, c_as_str});
-        } else if (c == CHAR_DELIMITER && i < wcslen(code) - 1) { // If at least 1 char left
-            append_str(&c_as_str, chr_to_str(code[++i])); // it's okay to do this since string is never modified again
-            push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
+        } else if (c == CHAR_DELIMITER) {
+            if (i < wcslen(code) - 1) {// If at least 1 char left
+                append_str(&c_as_str,
+                           chr_to_str(code[++i])); // it's okay to do this since string is never modified again
+                push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
+            }
         } else if (c == DOUBLE_CHAR_STR && i < wcslen(code) - 2) {
             append_str(&c_as_str, chr_to_str(code[++i]));
             append_str(&c_as_str, chr_to_str(code[++i]));
@@ -94,9 +94,11 @@ CyTokenArray *lex(wchar_t *code) {
                 append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
             }
             if (i < wcslen(code)) i--; // If not eof, shift the pointer back to the last char
-        } else if (c == CHAR_NUMBER && i < wcslen(code) - 1) {
-            append_str(&c_as_str, chr_to_str(code[++i]));
-            push_cy_token(tokens, (CyToken) {CharNumberToken, c_as_str});
+        } else if (c == CHAR_NUMBER) {
+            if (i < wcslen(code) - 1) {
+                append_str(&c_as_str, chr_to_str(code[++i]));
+                push_cy_token(tokens, (CyToken) {CharNumberToken, c_as_str});
+            }
         } else if (c == STRING_DELIMETER) {
             i++; // consume `
             for (; i < wcslen(code) && code[i] != STRING_DELIMETER; i++) {
@@ -109,6 +111,10 @@ CyTokenArray *lex(wchar_t *code) {
             push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
         } else if (c == NEWLINE) {
             push_cy_token(tokens, (CyToken) {NewlineToken, c_as_str}); // for lambda to newline
+        } else if (c != SPACE) {
+            // We don't care if it's actually an element or not. (checking only for elements causes issues)
+            // This is for structures, elements, modifiers - anything that doesn't have a multichar source.
+            push_cy_token(tokens, (CyToken) { GeneralToken, c_as_str});
         }
     }
 

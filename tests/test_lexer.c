@@ -59,7 +59,7 @@ void test_lexer() {
     passed += run_test(L"1 2 +", 3, (CyToken[]){
         { NumberToken, L"1" },
         { NumberToken, L"2" },
-        { ElementToken, L"+" }
+        { GeneralToken, L"+" }
     }); total++;
     passed += run_test(L"`abc\\`def` `hij", 2, (CyToken[]){
         { StringToken, L"`abc\\`def`" },
@@ -94,6 +94,11 @@ void test_lexer() {
     passed += run_test(L"1_2.3 4_5", 2, (CyToken[]){
             { NumberToken, L"1_2.3" },
             { NumberToken, L"4_5" }
+    }); total++;
+    passed += run_test(L"ka z Þp", 3, (CyToken[]){
+            { GeneralToken, L"ka" },
+            { GeneralToken, L"z" },
+            { GeneralToken, L"Þp" },
     }); total++;
     printf("Lexer: %d / %d tests passed\n", passed, total);
 }
