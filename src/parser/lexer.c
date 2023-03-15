@@ -25,6 +25,8 @@ wchar_t *stringify_cy_token(CyToken token) {
     return str;
 }
 
+// NOTE: This should only split strings into their tokens, *not* do any postprocessing with them.
+
 CyTokenArray *lex(wchar_t *code) {
     CyTokenArray *tokens = new_cy_token_array(); // initialise an empty token array
 
@@ -105,6 +107,8 @@ CyTokenArray *lex(wchar_t *code) {
             }
             if (i < wcslen(code)) append_str(&c_as_str, chr_to_str(STRING_DELIMETER));
             push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
+        } else if (c == NEWLINE) {
+            push_cy_token(tokens, (CyToken) {NewlineToken, c_as_str}); // for lambda to newline
         }
     }
 

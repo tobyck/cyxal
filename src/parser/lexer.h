@@ -17,7 +17,8 @@ typedef enum {
     VarGetToken,
     CharToken,
     TwoCharToken,
-    CharNumberToken
+    CharNumberToken,
+    NewlineToken
 } CyTokenType;
 
 typedef struct {
