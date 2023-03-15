@@ -78,7 +78,6 @@ CyTokenArray *lex(wchar_t *code) {
                         i++; // consume }
                         depth--;
                         if (depth == 0) {
-                            state = ReadyForNext;
                             break;
                         }
                     }

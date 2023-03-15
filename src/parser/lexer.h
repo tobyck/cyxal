@@ -20,16 +20,6 @@ typedef enum {
     CharNumberToken
 } CyTokenType;
 
-typedef enum {
-    ReadyForNext,
-    NumberState,
-    ElementState,
-    StringState,
-    EscapedStringState,
-    CompressedStringState,
-    CompressedNumberState
-} LexerState;
-
 typedef struct {
     CyTokenType type;
     wchar_t *src;
