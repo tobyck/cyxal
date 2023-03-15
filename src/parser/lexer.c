@@ -27,7 +27,6 @@ wchar_t *stringify_cy_token(CyToken token) {
 
 CyTokenArray *lex(wchar_t *code) {
     CyTokenArray *tokens = new_cy_token_array(); // initialise an empty token array
-    LexerState state = ReadyForNext; // set the state as ready for the next token
 
     CyElementList *elements = get_elements();
 
@@ -35,84 +34,78 @@ CyTokenArray *lex(wchar_t *code) {
         wchar_t c = code[i];
         wchar_t *c_as_str = chr_to_str(c);
 
-        if (state == ReadyForNext) { // if we're ready for the next token
-            if (contains(DIGITS_WITH_DEC, c)) { // if the char is a digit (or a dec. place)
-                push_cy_token(tokens, (CyToken) { NumberToken, c_as_str });
-                i++; // consume current char
-                bool has_dec = c == DEC_PLACE;
-                for (; i < wcslen(code) && (contains(DIGITS_WITH_DEC, code[i]) || code[i] == '_'); i++) {
-                    if (c == DEC_PLACE) {
-                        if (has_dec) break;
-                        has_dec = true;
-                    }
-                    append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
+        if (contains(DIGITS_WITH_DEC, c)) { // if the char is a digit (or a dec. place)
+            push_cy_token(tokens, (CyToken) { NumberToken, c_as_str });
+            i++; // consume current char
+            bool has_dec = c == DEC_PLACE;
+            for (; i < wcslen(code) && (contains(DIGITS_WITH_DEC, code[i]) || code[i] == '_'); i++) {
+                if (c == DEC_PLACE) {
+                    if (has_dec) break;
+                    has_dec = true;
                 }
-                if (i < wcslen(code)) i--; // if not eof shift back to the last char
-            // if the char is a digraph modifier or single-char element
-            } else if (contains(DIGRAPHS, c) || has_element(elements, c_as_str)) {
-                // add a token with the current char
-                push_cy_token(tokens, (CyToken){ ElementToken, c_as_str });
-                if (contains(DIGRAPHS, c) && i < wcslen(code) - 1) { // if the char is a digraph, and it's not the last char
-                    // append the next char in the code to the last token and go to the next loop iteration
-                    append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[++i]));
-                }
-            } else if (c == STRING_DELIMETER) {
-                state = StringState;
-                push_cy_token(tokens, (CyToken) {StringToken, chr_to_str(STRING_DELIMETER)});
-            } else if (c == COMPRESSED_STR_DEL || c == COMPRESSED_NUM_DEL) {
-                i++; // consume start
-                for (; i < wcslen(code) && code[i] != c; i++) append_str(&c_as_str, chr_to_str(code[i]));
-                append_str(&c_as_str, chr_to_str(c)); // append start
-                push_cy_token(tokens, (CyToken) {c == COMPRESSED_STR_DEL ? CompressedStringToken : CompressedNumberToken, c_as_str});
-            } else if (c == CHAR_DELIMITER && i < wcslen(code) - 1) { // If at least 1 char left
-                append_str(&c_as_str, chr_to_str(code[++i])); // it's okay to do this since string is never modified again
-                push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
-            } else if (c == DOUBLE_CHAR_STR && i < wcslen(code) - 2) {
-                append_str(&c_as_str, chr_to_str(code[++i]));
-                append_str(&c_as_str, chr_to_str(code[++i]));
-                push_cy_token(tokens, (CyToken) {TwoCharToken, c_as_str});
-            } else if (c == COMMENT) {
-                if (i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
-                    int depth = 1; // comment depth
-                    i += 2; // consume #{
-                    for (; i < wcslen(code); i++) {
-                        if (code[i] == COMMENT && i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
-                            i++; // consume #
-                            depth++;
-                        } else if (code[i] == CLOSE_BLOCK_COMMENT && i < wcslen(code) - 1 && code[i + 1] == COMMENT){
-                            i++; // consume }
-                            depth--;
-                            if (depth == 0) {
-                                state = ReadyForNext;
-                                break;
-                            }
+                append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
+            }
+            if (i < wcslen(code)) i--; // if not eof shift back to the last char
+        // if the char is a digraph modifier or single-char element
+        } else if (contains(DIGRAPHS, c) || has_element(elements, c_as_str)) {
+            // add a token with the current char
+            push_cy_token(tokens, (CyToken){ ElementToken, c_as_str });
+            if (contains(DIGRAPHS, c) && i < wcslen(code) - 1) { // if the char is a digraph, and it's not the last char
+                // append the next char in the code to the last token and go to the next loop iteration
+                append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[++i]));
+            }
+        } else if (c == COMPRESSED_STR_DEL || c == COMPRESSED_NUM_DEL) {
+            i++; // consume start
+            for (; i < wcslen(code) && code[i] != c; i++) append_str(&c_as_str, chr_to_str(code[i]));
+            if (i < wcslen(code)) append_str(&c_as_str, chr_to_str(c)); // append start
+            push_cy_token(tokens, (CyToken) {c == COMPRESSED_STR_DEL ? CompressedStringToken : CompressedNumberToken, c_as_str});
+        } else if (c == CHAR_DELIMITER && i < wcslen(code) - 1) { // If at least 1 char left
+            append_str(&c_as_str, chr_to_str(code[++i])); // it's okay to do this since string is never modified again
+            push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
+        } else if (c == DOUBLE_CHAR_STR && i < wcslen(code) - 2) {
+            append_str(&c_as_str, chr_to_str(code[++i]));
+            append_str(&c_as_str, chr_to_str(code[++i]));
+            push_cy_token(tokens, (CyToken) {TwoCharToken, c_as_str});
+        } else if (c == COMMENT) {
+            if (i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
+                int depth = 1; // comment depth
+                i += 2; // consume #{
+                for (; i < wcslen(code); i++) {
+                    if (code[i] == COMMENT && i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
+                        i++; // consume #
+                        depth++;
+                    } else if (code[i] == CLOSE_BLOCK_COMMENT && i < wcslen(code) - 1 && code[i + 1] == COMMENT){
+                        i++; // consume }
+                        depth--;
+                        if (depth == 0) {
+                            state = ReadyForNext;
+                            break;
                         }
                     }
-                } else {
-                    for (; i < wcslen(code) && code[i] != NEWLINE; i++); // move forward until newline or eof
                 }
-            } else if (c == GET_VAR || c == SET_VAR) {
-                push_cy_token(tokens, (CyToken) {c == GET_VAR ? VarGetToken : VarSetToken, c_as_str});
-                i++; // consume var char
-                for (; i < wcslen(code) && (isalpha(code[i]) || code[i] == L'_'); i++) {
-                    append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
+            } else {
+                for (; i < wcslen(code) && code[i] != NEWLINE; i++); // move forward until newline or eof
+            }
+        } else if (c == GET_VAR || c == SET_VAR) {
+            push_cy_token(tokens, (CyToken) {c == GET_VAR ? VarGetToken : VarSetToken, c_as_str});
+            i++; // consume var char
+            for (; i < wcslen(code) && (isalpha(code[i]) || code[i] == L'_'); i++) {
+                append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
+            }
+            if (i < wcslen(code)) i--; // If not eof, shift the pointer back to the last char
+        } else if (c == CHAR_NUMBER && i < wcslen(code) - 1) {
+            append_str(&c_as_str, chr_to_str(code[++i]));
+            push_cy_token(tokens, (CyToken) {CharNumberToken, c_as_str});
+        } else if (c == STRING_DELIMETER) {
+            i++; // consume `
+            for (; i < wcslen(code) && code[i] != STRING_DELIMETER; i++) {
+                append_str(&c_as_str, chr_to_str(code[i]));
+                if (code[i] == ESCAPE_CHAR && i < wcslen(code) - 1) { // if escape, advance pointer without checking
+                    append_str(&c_as_str, chr_to_str(code[++i]));
                 }
-                if (i < wcslen(code)) i--; // If not eof, shift the pointer back to the last char
-            } else if (c == CHAR_NUMBER && i < wcslen(code) - 1) {
-                append_str(&c_as_str, chr_to_str(code[++i]));
-                push_cy_token(tokens, (CyToken) {CharNumberToken, c_as_str});
             }
-        } else if (state == StringState) {
-            if (c == STRING_DELIMETER) {
-                state = ReadyForNext;
-            }
-            if (c == ESCAPE_CHAR) {
-                state = EscapedStringState;
-            }
-            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
-        } else if (state == EscapedStringState) {
-            state = StringState;
-            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
+            if (i < wcslen(code)) append_str(&c_as_str, chr_to_str(STRING_DELIMETER));
+            push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
         }
     }
 
