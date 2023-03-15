@@ -39,3 +39,7 @@ char *wcs_to_str(wchar_t *wcs) {
     sprintf (c, "%ls", wcs);
     return c;
 }
+// returns whether a char is a letter
+bool is_letter(wchar_t wc) {
+    return (wc >= L'a' && wc <= L'z') || (wc >= L'A' && wc <= L'Z');
+}

@@ -12,7 +12,9 @@ typedef enum {
     ElementToken,
     StringToken,
     CompressedStringToken,
-    CompressedNumberToken
+    CompressedNumberToken,
+    VarSetToken,
+    VarGetToken
 } CyTokenType;
 
 typedef enum {
@@ -22,7 +24,7 @@ typedef enum {
     StringState,
     EscapedStringState,
     CompressedStringState,
-    CompressedNumberState,
+    CompressedNumberState
 } LexerState;
 
 typedef struct {

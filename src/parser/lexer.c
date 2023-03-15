@@ -87,6 +87,13 @@ CyTokenArray *lex(wchar_t *code) {
                 } else {
                     for (; i < wcslen(code) && code[i] != NEWLINE; i++); // move forward until newline or eof
                 }
+            } else if (c == GET_VAR || c == SET_VAR) {
+                push_cy_token(tokens, (CyToken) {c == GET_VAR ? VarGetToken : VarSetToken, c_as_str});
+                i++; // consume var char
+                for (; i < wcslen(code) && (isalpha(code[i]) || code[i] == L'_'); i++) {
+                    append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
+                }
+                if (i < wcslen(code)) i--; // If not eof, shift the pointer back to the last char
             }
         } else if (state == NumberState) {
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src
