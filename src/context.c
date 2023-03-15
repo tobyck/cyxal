@@ -1,7 +1,5 @@
 #include <stdlib.h>
-#include <string.h>
 #include <wchar.h>
-
 #include "context.h"
 
 CyContext *new_cy_context(CyValueList *args, wchar_t *flags) {

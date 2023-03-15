@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <wchar.h>
 #include <string.h>
 #include "elements.h"
 #include "../helpers.h"
-#include <wchar.h>
 
 /*
  * Element: +
@@ -24,7 +24,7 @@ dyad(add) {
         ret = cy_value_new_str(wcscat(lhs->other, rhs->other));
     } else {
         wchar_t err_msg[65];
-        swprintf(err_msg, 1024, L"Invalid combination of types for element 'add': '%ls' and '%ls'", stringify_cy_type(lhs->type), stringify_cy_type(rhs->type));
+        swprintf(err_msg, 65, L"Invalid combination of types for element 'add': '%ls' and '%ls'", stringify_cy_type(lhs->type), stringify_cy_type(rhs->type));
         cy_error(ctx, err_msg);
     }
 
@@ -45,7 +45,7 @@ monad(halve) {
         mpq_div(ret->number, lhs->number, cy_value_new_num(L"2")->number);
     } else {
         wchar_t err_msg[39];
-        swprintf(err_msg, 1024, L"Invalid type '%ls' for element 'halve'", stringify_cy_type(lhs->type));
+        swprintf(err_msg, 39, L"Invalid type '%ls' for element 'halve'", stringify_cy_type(lhs->type));
         cy_error(ctx, err_msg);
     }
 
@@ -69,7 +69,7 @@ nilad(alphabet) {
  *  (Any x) -> print(x)
  * */
 monad(cy_print) {
-    append_str(ctx->output, stringify_cy_value(*lhs));
+    append_str(&ctx->output, stringify_cy_value(*lhs));
     return cy_value_new_empty(NullType); // return nothing
 }
 

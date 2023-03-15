@@ -16,11 +16,15 @@ endif
 	tar -xf $(DIR)/gmp-6.2.1.tar.xz -C $(DIR)
 	cd $(DIR)/gmp-6.2.1 && ./configure && make && make check && sudo make install && rm $(DIR)/gmp-6.2.1.tar.xz
 
+include-gmp:
+	cp $(DIR)/.libs/libgmp.10.dylib /usr/local/lib
+	cp $(DIR)/gmp.h /usr/local/include
+
 build: src
 	$(COMPILER) src/*.c src/**/*.c -lgmp -o $(OUTPUT_FILE)
 
 run: $(OUTPUT_FILE)
-	@make build
+	make build
 	$(OUTPUT_FILE)
 
 clean:

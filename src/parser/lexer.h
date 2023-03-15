@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <string.h>
+#include <wchar.h>
 
 // token related types
 
@@ -30,15 +30,14 @@ typedef struct {
     size_t size; // the current size of the array
 } CyTokenArray;
 
-// array methods
+// methods for CyTokenArrays and CyTokens
 
 extern CyTokenArray *new_cy_token_array(void);
 extern void push_cy_token(CyTokenArray *array, CyToken token);
-extern CyToken get_cy_token(CyTokenArray *array, size_t index);
-
-// the tokenise function
-
-extern CyTokenArray *tokenise(wchar_t *code);
-
 extern wchar_t *stringify_cy_token(CyToken token);
+
+// the lex function
+
+extern CyTokenArray *lex(wchar_t *code);
+
 #endif // CYXAL_TOKENISER_H

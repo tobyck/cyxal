@@ -1,6 +1,6 @@
 #include <stdbool.h>
-#include "../src/parser/tokeniser.h"
 #include <wchar.h>
+#include "../src/parser/lexer.h"
 
 // syntax sugar
 
@@ -34,7 +34,7 @@ CyTokenArray *cy_token_array_from(size_t size, CyToken tokens[]) {
 }
 
 bool run_test(wchar_t *str, size_t size, CyToken exp_tokens[]) {
-    CyTokenArray *tokens = tokenise(str);
+    CyTokenArray *tokens = lex(str);
 
     CyTokenArray *expected = cy_token_array_from(size, exp_tokens);
     bool result = tokens_eq(tokens, expected);

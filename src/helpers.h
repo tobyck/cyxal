@@ -22,14 +22,12 @@
 #define CLOSE_STRUCT L")}]⟩;"
 #define LAMBDA_TO_NEWLINE L")"
 
-
 // useful functions
 
-extern bool contains(wchar_t *str, wchar_t c);
-extern void append_str(wchar_t *dest, wchar_t *src);
-extern wchar_t *str_from_chr(wchar_t str);
-extern wchar_t *str_to_wcs(char *c);
-extern char *wcs_to_str(wchar_t *wc);
-
+extern bool contains(wchar_t *str, wchar_t chr);
+extern void append_str(wchar_t **dest, wchar_t *src);
+extern wchar_t *chr_to_str(wchar_t chr);
+extern wchar_t *str_to_wcs(char *str);
+extern char *wcs_to_str(wchar_t *wcs);
 
 #endif // CYXAL_HELPERS_H

@@ -1,15 +1,15 @@
 /*
  * Purely for testing at this point
+ * Most of this code should be organised and moved to the tests folder
  * */
 
 #include <stdio.h>
-#include "parser/tokeniser.h"
+#include <locale.h>
+#include <wchar.h>
+#include "parser/lexer.h"
 #include "builtins/cy_value.h"
 #include "builtins/elements.h"
 #include "context.h"
-#include <locale.h>
-#include <string.h>
-#include <wchar.h>
 #include "../tests/test_lexer.c"
 
 void test_lexer_input() {
@@ -18,7 +18,7 @@ void test_lexer_input() {
     fgetws(input, 128, stdin);
     input[wcscspn(input, L"\n")] = 0;
 
-    CyTokenArray *tokens = tokenise(input);
+    CyTokenArray *tokens = lex(input);
 
     for (int i = 0; i < tokens->size; i++) {
         printf("%ls\n", stringify_cy_token(tokens->tokens[i]));
@@ -59,10 +59,9 @@ void test_elements() {
 }
 
 int main() {
-    setlocale(LC_ALL,"");
+    setlocale(LC_ALL, "");
 
-    //test_lexer_input();
+    test_cy_value();
 
-    test_lexer();
     return 0;
 }

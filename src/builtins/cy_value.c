@@ -1,10 +1,10 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
+#include <wchar.h>
 #include <math.h>
 #include "cy_value.h"
 #include "../helpers.h"
-#include <wchar.h>
 
 // get a string from a CyType
 wchar_t *stringify_cy_type(CyType type) {
@@ -35,8 +35,8 @@ CyValue *cy_value_new_num(wchar_t *num_as_str) {
     mpz_init(denominator); // initialise
     mpz_set_ui(denominator, 1); // set to 1
     if (contains(num_as_str, DEC_PLACE)) { // if there's a decimal point in the number
-        for (int i = 0; i < wcsnlen(num_as_str, 1024); i++) { // for each number in the range [0, strlen(num_as_str))
-            if (num_as_str[wcsnlen(num_as_str, 1024) - 1 - i] == DEC_PLACE) { // if we've found the decimal point
+        for (int i = 0; i < wcslen(num_as_str); i++) { // for each number in the range [0, strlen(num_as_str))
+            if (num_as_str[wcslen(num_as_str) - 1 - i] == DEC_PLACE) { // if we've found the decimal point
                 mpz_set_ui(denominator, pow(10, i)); // set the denominator to 10 ^ i
                 break;
             }
@@ -44,21 +44,21 @@ CyValue *cy_value_new_num(wchar_t *num_as_str) {
     }
 
     wchar_t *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically append to with append_str
-    for (int i = 0; i < wcsnlen(num_as_str, 1024); i++) {
+    for (int i = 0; i < wcslen(num_as_str); i++) {
         if (num_as_str[i] != DEC_PLACE) { // if the char is not a decimal place
-            append_str(numerator_str, str_from_chr(num_as_str[i])); // create string from char and append to numerator
+            append_str(&numerator_str, chr_to_str(num_as_str[i])); // create string from char and append to numerator
         }
     }
 
     // if numerator is still empty i.e. there was no decimal place, set the numerator to num_as_str;
-    if (wcsnlen(numerator_str, 1024) == 0) {
+    if (wcslen(numerator_str) == 0) {
         numerator_str = num_as_str;
     }
 
     wchar_t *denominator_str = str_to_wcs(mpz_get_str(NULL, 10, denominator)); // create a string of the denominator
 
     // create a full string representation of the fraction to generate a mpq_t from
-    wchar_t *fraction_str = malloc(wcsnlen(numerator_str, 1024) + wcsnlen(denominator_str, 1024) + 2 * sizeof(wchar_t));
+    wchar_t *fraction_str = malloc((wcslen(numerator_str) + wcslen(denominator_str) + 2) * sizeof(wchar_t));
     wcscat(fraction_str, numerator_str);
     wcscat(fraction_str, L"/");
     wcscat(fraction_str, denominator_str);
@@ -108,33 +108,33 @@ wchar_t *stringify_cy_value(CyValue value) {
         }
         case ListType: {
             CyValueList *list = (CyValueList *)value.other; // variable for the list case to a (CyValueList *) from (void *)
-            wchar_t *str = malloc(2 * sizeof(wchar_t));
-            wcscpy(str, L"[ ");
+            wchar_t *str = malloc(0);
+            append_str(&str, L"[ ");
             for (int i = 0; i < list->size; i++) {
                 wchar_t *item;
                 bool should_free = false;
                 if (cy_value_is_str(list->values[i])) {
-                    item = malloc(strlen(list->values[i].other) + 2);
-                    wcscpy(item, L"\"");
-                    wcscat(item, list->values[i].other);
-                    wcscat(item, L"\"");
+                    item = malloc(0);
+                    append_str(&item, L"\"");
+                    append_str(&item, list->values[i].other);
+                    append_str(&item, L"\"");
                     should_free = true;
                 } else {
                     item = stringify_cy_value(list->values[i]); // stringify the item to append
                 }
-                str = realloc(str, wcsnlen(str, 1024) + wcsnlen(item, 1024) + 2); // reallocate memory for that, the comma and space
-                wcscat(str, item);
-                wcscat(str, L", ");
+                append_str(&str, item);
+                append_str(&str, L", ");
                 if (should_free) {
                     free(item);
                 }
             }
-            wcscpy(str + wcsnlen(str, 1024) - 2 * sizeof(wchar_t), L" ]"); // replace the last ", " with " ]"
+            wcscpy(str + wcslen(str) - 2, L" ]"); // replace the last ", " with " ]"
             return str;
         }
         case FunctionType: {
-            wchar_t *str = malloc(strlen(value.other) + 9);
-            swprintf(str, 1024, L"<lambda \"%s\">", (wchar_t *)value.other);
+            size_t max_size = wcslen(value.other) + 12;
+            wchar_t *str = malloc(max_size * sizeof(wchar_t));
+            swprintf(str, max_size, L"<lambda \"%ls\">", (wchar_t *)value.other);
             return str;
         }
         case NullType:
