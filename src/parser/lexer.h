@@ -14,7 +14,10 @@ typedef enum {
     CompressedStringToken,
     CompressedNumberToken,
     VarSetToken,
-    VarGetToken
+    VarGetToken,
+    CharToken,
+    TwoCharToken,
+    CharNumberToken
 } CyTokenType;
 
 typedef enum {

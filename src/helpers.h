@@ -26,6 +26,7 @@
 #define CLOSE_BLOCK_COMMENT L'}'
 #define GET_VAR L'←'
 #define SET_VAR L'→'
+#define CHAR_NUMBER L'⁺'
 // useful functions
 
 extern bool contains(wchar_t *str, wchar_t chr);

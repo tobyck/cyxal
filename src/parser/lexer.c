@@ -62,11 +62,11 @@ CyTokenArray *lex(wchar_t *code) {
                 push_cy_token(tokens, (CyToken) {CompressedNumberToken, chr_to_str(COMPRESSED_NUM_DEL)});
             } else if (c == CHAR_DELIMITER && i < wcslen(code) - 1) { // If at least 1 char left
                 append_str(&c_as_str, chr_to_str(code[++i])); // it's okay to do this since string is never modified again
-                push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
+                push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
             } else if (c == DOUBLE_CHAR_STR && i < wcslen(code) - 2) {
                 append_str(&c_as_str, chr_to_str(code[++i]));
                 append_str(&c_as_str, chr_to_str(code[++i]));
-                push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
+                push_cy_token(tokens, (CyToken) {TwoCharToken, c_as_str});
             } else if (c == COMMENT) {
                 if (i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
                     int depth = 1; // comment depth
@@ -94,6 +94,9 @@ CyTokenArray *lex(wchar_t *code) {
                     append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
                 }
                 if (i < wcslen(code)) i--; // If not eof, shift the pointer back to the last char
+            } else if (c == CHAR_NUMBER && i < wcslen(code) - 1) {
+                append_str(&c_as_str, chr_to_str(code[++i]));
+                push_cy_token(tokens, (CyToken) {CharNumberToken, c_as_str});
             }
         } else if (state == NumberState) {
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src

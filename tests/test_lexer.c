@@ -70,8 +70,8 @@ void test_lexer() {
             { CompressedNumberToken, L"»abc»" }
     }); total++;
     passed += run_test(L"\\a ‛ab \\", 2, (CyToken[]){
-            { StringToken, L"\\a" },
-            { StringToken, L"‛ab" }
+            { CharToken, L"\\a" },
+            { TwoCharToken, L"‛ab" }
     }); total++;
     passed += run_test(L"1 # 2 \n 3", 2, (CyToken[]){
             { NumberToken, L"1" },
@@ -86,6 +86,10 @@ void test_lexer() {
             { NumberToken, L"1" },
             { VarSetToken, L"→cd" },
             { VarGetToken, L"←" }
+    }); total++;
+    passed += run_test(L"⁺4 4 ⁺", 2, (CyToken[]){
+            { CharNumberToken, L"⁺4" },
+            { NumberToken, L"4" }
     }); total++;
     printf("Lexer: %d / %d tests passed\n", passed, total);
 }
