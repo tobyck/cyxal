@@ -60,6 +60,13 @@ CyTokenArray *lex(wchar_t *code) {
             } else if (c == COMPRESSED_NUM_DEL) {
                 state = CompressedNumberState;
                 push_cy_token(tokens, (CyToken) {CompressedNumberToken, chr_to_str(COMPRESSED_NUM_DEL)});
+            } else if (c == CHAR_DELIMITER && i < wcslen(code) - 1) { // If at least 1 char left
+                append_str(&c_as_str, chr_to_str(code[++i])); // it's okay to do this since string is never modified again
+                push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
+            } else if (c == DOUBLE_CHAR_STR && i < wcslen(code) - 2) {
+                append_str(&c_as_str, chr_to_str(code[++i]));
+                append_str(&c_as_str, chr_to_str(code[++i]));
+                push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
             }
         } else if (state == NumberState) {
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src
