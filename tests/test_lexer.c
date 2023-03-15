@@ -73,5 +73,9 @@ void test_lexer() {
             { StringToken, L"\\a" },
             { StringToken, L"‛ab" }
     }); total++;
+    passed += run_test(L"1 # 2 \n 3", 2, (CyToken[]){
+            { NumberToken, L"1" },
+            { NumberToken, L"3" }
+    }); total++;
     printf("Lexer: %d / %d tests passed\n", passed, total);
 }
