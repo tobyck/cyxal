@@ -65,5 +65,9 @@ void test_lexer() {
         { StringToken, L"`abc\\`def`" },
         { StringToken, L"`hij" }
     }); total++;
+    passed += run_test(L"«abc« »abc»", 2, (CyToken[]){
+            { CompressedStringToken, L"«abc«" },
+            { CompressedNumberToken, L"»abc»" }
+    }); total++;
     printf("Lexer: %d / %d tests passed\n", passed, total);
 }

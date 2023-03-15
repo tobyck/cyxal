@@ -54,6 +54,12 @@ CyTokenArray *lex(wchar_t *code) {
             } else if (c == STRING_DELIMETER) {
                 state = StringState;
                 push_cy_token(tokens, (CyToken) {StringToken, chr_to_str(STRING_DELIMETER)});
+            } else if (c == COMPRESSED_STR_DEL) {
+                state = CompressedStringState;
+                push_cy_token(tokens, (CyToken) {CompressedStringToken, chr_to_str(COMPRESSED_STR_DEL)});
+            } else if (c == COMPRESSED_NUM_DEL) {
+                state = CompressedNumberState;
+                push_cy_token(tokens, (CyToken) {CompressedNumberToken, chr_to_str(COMPRESSED_NUM_DEL)});
             }
         } else if (state == NumberState) {
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src
@@ -79,6 +85,16 @@ CyTokenArray *lex(wchar_t *code) {
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
         } else if (state == EscapedStringState) {
             state = StringState;
+            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
+        } else if (state == CompressedStringState) {
+            if (c == COMPRESSED_STR_DEL) {
+                state = ReadyForNext;
+            }
+            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
+        } else if (state == CompressedNumberState) {
+            if (c == COMPRESSED_NUM_DEL) {
+                state = ReadyForNext;
+            }
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
         }
     }

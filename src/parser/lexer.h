@@ -10,7 +10,9 @@
 typedef enum {
     NumberToken,
     ElementToken,
-    StringToken
+    StringToken,
+    CompressedStringToken,
+    CompressedNumberToken
 } CyTokenType;
 
 typedef enum {
@@ -18,7 +20,9 @@ typedef enum {
     NumberState,
     ElementState,
     StringState,
-    EscapedStringState
+    EscapedStringState,
+    CompressedStringState,
+    CompressedNumberState,
 } LexerState;
 
 typedef struct {
