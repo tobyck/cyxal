@@ -59,12 +59,11 @@ CyTokenArray *lex(wchar_t *code) {
             } else if (c == STRING_DELIMETER) {
                 state = StringState;
                 push_cy_token(tokens, (CyToken) {StringToken, chr_to_str(STRING_DELIMETER)});
-            } else if (c == COMPRESSED_STR_DEL) {
-                state = CompressedStringState;
-                push_cy_token(tokens, (CyToken) {CompressedStringToken, chr_to_str(COMPRESSED_STR_DEL)});
-            } else if (c == COMPRESSED_NUM_DEL) {
-                state = CompressedNumberState;
-                push_cy_token(tokens, (CyToken) {CompressedNumberToken, chr_to_str(COMPRESSED_NUM_DEL)});
+            } else if (c == COMPRESSED_STR_DEL || c == COMPRESSED_NUM_DEL) {
+                i++; // consume start
+                for (; i < wcslen(code) && code[i] != c; i++) append_str(&c_as_str, chr_to_str(code[i]));
+                append_str(&c_as_str, chr_to_str(c)); // append start
+                push_cy_token(tokens, (CyToken) {c == COMPRESSED_STR_DEL ? CompressedStringToken : CompressedNumberToken, c_as_str});
             } else if (c == CHAR_DELIMITER && i < wcslen(code) - 1) { // If at least 1 char left
                 append_str(&c_as_str, chr_to_str(code[++i])); // it's okay to do this since string is never modified again
                 push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
@@ -113,16 +112,6 @@ CyTokenArray *lex(wchar_t *code) {
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
         } else if (state == EscapedStringState) {
             state = StringState;
-            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
-        } else if (state == CompressedStringState) {
-            if (c == COMPRESSED_STR_DEL) {
-                state = ReadyForNext;
-            }
-            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
-        } else if (state == CompressedNumberState) {
-            if (c == COMPRESSED_NUM_DEL) {
-                state = ReadyForNext;
-            }
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
         }
     }
