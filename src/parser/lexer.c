@@ -68,7 +68,25 @@ CyTokenArray *lex(wchar_t *code) {
                 append_str(&c_as_str, chr_to_str(code[++i]));
                 push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
             } else if (c == COMMENT) {
-                for (; i < wcslen(code) && code[i] != NEWLINE; i++); // move forward until newline or eof
+                if (i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
+                    int depth = 1; // comment depth
+                    i += 2; // consume #{
+                    for (; i < wcslen(code); i++) {
+                        if (code[i] == COMMENT && i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
+                            i++; // consume #
+                            depth++;
+                        } else if (code[i] == CLOSE_BLOCK_COMMENT && i < wcslen(code) - 1 && code[i + 1] == COMMENT){
+                            i++; // consume }
+                            depth--;
+                            if (depth == 0) {
+                                state = ReadyForNext;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    for (; i < wcslen(code) && code[i] != NEWLINE; i++); // move forward until newline or eof
+                }
             }
         } else if (state == NumberState) {
             append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src

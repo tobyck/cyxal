@@ -77,5 +77,9 @@ void test_lexer() {
             { NumberToken, L"1" },
             { NumberToken, L"3" }
     }); total++;
+    passed += run_test(L"1 #{#{ 2 }#}# 3 #{ # 4", 2, (CyToken[]){
+            { NumberToken, L"1" },
+            { NumberToken, L"3" }
+    }); total++;
     printf("Lexer: %d / %d tests passed\n", passed, total);
 }

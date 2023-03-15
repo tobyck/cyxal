@@ -22,6 +22,8 @@
 #define CLOSE_STRUCT L")}]⟩;"
 #define LAMBDA_TO_NEWLINE L")"
 #define ESCAPE_CHAR L'\\'
+#define OPEN_BLOCK_COMMENT L'{'
+#define CLOSE_BLOCK_COMMENT L'}'
 // useful functions
 
 extern bool contains(wchar_t *str, wchar_t chr);
