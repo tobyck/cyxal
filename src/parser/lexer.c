@@ -1,6 +1,7 @@
 #include "lexer.h"
 #include "../helpers.h"
 #include "../builtins/elements.h"
+#include <stdbool.h>
 
 // returns a new empty token array
 CyTokenArray *new_cy_token_array(void) {
@@ -36,13 +37,17 @@ CyTokenArray *lex(wchar_t *code) {
 
         if (state == ReadyForNext) { // if we're ready for the next token
             if (contains(DIGITS_WITH_DEC, c)) { // if the char is a digit (or a dec. place)
-                CyToken token = { NumberToken, c_as_str }; // create a new number token with the number so far which is stored in src
-                push_cy_token(tokens, token); // push that token to the token array
-                if (i < wcslen(code) - 1) { // if we're not at the last char
-                    if (contains(DIGITS_WITH_DEC, code[i + 1])) { // and the next char is also a digit
-                        state = NumberState; // set the state to NumberState to keep building the current token
+                push_cy_token(tokens, (CyToken) { NumberToken, c_as_str });
+                i++; // consume current char
+                bool has_dec = c == DEC_PLACE;
+                for (; i < wcslen(code) && (contains(DIGITS_WITH_DEC, code[i]) || code[i] == '_'); i++) {
+                    if (c == DEC_PLACE) {
+                        if (has_dec) break;
+                        has_dec = true;
                     }
+                    append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
                 }
+                if (i < wcslen(code)) i--; // if not eof shift back to the last char
             // if the char is a digraph modifier or single-char element
             } else if (contains(DIGRAPHS, c) || has_element(elements, c_as_str)) {
                 // add a token with the current char
@@ -97,20 +102,6 @@ CyTokenArray *lex(wchar_t *code) {
             } else if (c == CHAR_NUMBER && i < wcslen(code) - 1) {
                 append_str(&c_as_str, chr_to_str(code[++i]));
                 push_cy_token(tokens, (CyToken) {CharNumberToken, c_as_str});
-            }
-        } else if (state == NumberState) {
-            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src
-            // set the state back to ready for next if the next character isn't a digit
-            if (i < wcslen(code) - 1) {
-                if (
-                    !contains(DIGITS_WITH_DEC, code[i + 1]) // if the next char isn't a digit
-                    || ( // or the next char is a decimal place but there already is one
-                        code[i + 1] == DEC_PLACE
-                        && contains(tokens->tokens[tokens->size - 1].src, DEC_PLACE)
-                    )
-                ) {
-                    state = ReadyForNext; // set the state back to ReadyForNext to tokenise the next token
-                }
             }
         } else if (state == StringState) {
             if (c == STRING_DELIMETER) {
