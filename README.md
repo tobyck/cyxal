@@ -15,26 +15,14 @@ First make a fork of this repository, or if you have collaborator permissions ju
 ### Installing GMP
 
 In order to have arbitrary-precision rationals like Vyxal does, Cyxal uses GMP — The GNU Multiple Precision
-Arithmetic Library. Installation processes may vary but for most Mac or Linux systems, run the following commands and make sure you're not in the `cyxal/` directory, `~/Downloads` is fine.
+Arithmetic Library. 
+To install this, there is a script in the Makefile that does everything for you. Run the following:
 
 ```bash
-curl https://gmplib.org/download/gmp/gmp-6.2.1.tar.xz --output gmp-6.2.1.tar.xz
-tar -xf gmp-6.2.1.tar.xz
-cd gmp-6.2.1
-./configure
-make
-make check
-make install
+make install-gmp DIR='/path/for/gmp'
 ```
 
-On Linux this should be enough, but on Mac you need to manually copy `libgmp.10.dylib` and `gmp.h` to `/usr/local/lib` and `/usr/local/include` respectively. From the same `gmp-6.2.1` you were just in, run:
-
-```bash
-cp .libs/libgmp.10.dylib /usr/local/lib
-cp gmp.h /usr/local/include
-```
-
-If things still aren't working, all I can say is that the official GMP website is [here](https://gmplib.org), and good luck.
+Make sure the path isn't in the `cyxal/` directory. `~/Downloads` is fine.
 
 ### Environment
 
