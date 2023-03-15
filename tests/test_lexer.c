@@ -55,11 +55,15 @@ bool run_test(wchar_t *str, size_t size, CyToken exp_tokens[]) {
 
 void test_lexer() {
     int passed = 0;
-    int total = 1;
+    int total = 0;
     passed += run_test(L"1 2 +", 3, (CyToken[]){
         { NumberToken, L"1" },
         { NumberToken, L"2" },
         { ElementToken, L"+" }
-    });
+    }); total++;
+    passed += run_test(L"`abc\\`def` `hij", 2, (CyToken[]){
+        { StringToken, L"`abc\\`def`" },
+        { StringToken, L"`hij" }
+    }); total++;
     printf("Lexer: %d / %d tests passed\n", passed, total);
 }

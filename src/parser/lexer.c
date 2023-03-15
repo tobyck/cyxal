@@ -51,23 +51,35 @@ CyTokenArray *lex(wchar_t *code) {
                     // append the next char in the code to the last token and go to the next loop iteration
                     append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[++i]));
                 }
+            } else if (c == STRING_DELIMETER) {
+                state = StringState;
+                push_cy_token(tokens, (CyToken) {StringToken, chr_to_str(STRING_DELIMETER)});
             }
-        } else {
-            if (state == NumberState) {
-                append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src
-                // set the state back to ready for next if the next character isn't a digit
-                if (i < wcslen(code) - 1) {
-                    if (
-                        !contains(DIGITS_WITH_DEC, code[i + 1]) // if the next char isn't a digit
-                        || ( // or the next char is a decimal place but there already is one
-                            code[i + 1] == DEC_PLACE
-                            && contains(tokens->tokens[tokens->size - 1].src, DEC_PLACE)
-                        )
-                    ) {
-                        state = ReadyForNext; // set the state back to ReadyForNext to tokenise the next token
-                    }
+        } else if (state == NumberState) {
+            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str); // dynamically append the char to the token's src
+            // set the state back to ready for next if the next character isn't a digit
+            if (i < wcslen(code) - 1) {
+                if (
+                    !contains(DIGITS_WITH_DEC, code[i + 1]) // if the next char isn't a digit
+                    || ( // or the next char is a decimal place but there already is one
+                        code[i + 1] == DEC_PLACE
+                        && contains(tokens->tokens[tokens->size - 1].src, DEC_PLACE)
+                    )
+                ) {
+                    state = ReadyForNext; // set the state back to ReadyForNext to tokenise the next token
                 }
             }
+        } else if (state == StringState) {
+            if (c == STRING_DELIMETER) {
+                state = ReadyForNext;
+            }
+            if (c == ESCAPE_CHAR) {
+                state = EscapedStringState;
+            }
+            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
+        } else if (state == EscapedStringState) {
+            state = StringState;
+            append_str(&tokens->tokens[tokens->size - 1].src, c_as_str);
         }
     }
 

@@ -9,13 +9,16 @@
 
 typedef enum {
     NumberToken,
-    ElementToken
+    ElementToken,
+    StringToken
 } CyTokenType;
 
 typedef enum {
     ReadyForNext,
     NumberState,
-    ElementState
+    ElementState,
+    StringState,
+    EscapedStringState
 } LexerState;
 
 typedef struct {

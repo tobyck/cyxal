@@ -61,7 +61,7 @@ void test_elements() {
 int main() {
     setlocale(LC_ALL, "");
 
-    test_cy_value();
+    test_lexer();
 
     return 0;
 }

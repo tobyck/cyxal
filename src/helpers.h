@@ -21,7 +21,7 @@
 #define OPEN_STRUCT L"[({⟨λƛ⟑'µ"
 #define CLOSE_STRUCT L")}]⟩;"
 #define LAMBDA_TO_NEWLINE L")"
-
+#define ESCAPE_CHAR L'\\'
 // useful functions
 
 extern bool contains(wchar_t *str, wchar_t chr);
