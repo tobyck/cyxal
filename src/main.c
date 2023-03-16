@@ -47,19 +47,16 @@ void test_cy_value() {
 
 void test_context() {
     CyContext *ctx = new_cy_context(empty_cy_value_list());
-    push_cy_value(ctx->stack, *cy_value_new_num(L"1.6"));
-    push_cy_value(ctx->stack, *cy_value_new_num(L"0.4"));
+    push_cy_value(last_stack(ctx), *cy_value_new_num(L"1.6"));
+    push_cy_value(last_stack(ctx), *cy_value_new_num(L".8"));
     add(ctx);
     cy_print(ctx);
-    push_cy_value(ctx->stack)
     printf("Output: %ls\n", ctx->output);
 }
 
 int main() {
     setlocale(LC_ALL, "");
 
-    test_cy_value();
-    test_lexer();
     test_context();
 
     return 0;

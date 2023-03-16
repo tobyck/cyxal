@@ -15,8 +15,8 @@
  *  (Str x, Str y) -> concat(x, y)
  * */
 element(add) {
-    CyValue *rhs = pop(ctx->stack);
-    CyValue *lhs = pop(ctx->stack);
+    CyValue *rhs = pop_cy_value(last_stack(ctx));
+    CyValue *lhs = pop_cy_value(last_stack(ctx));
 
     CyValue *ret;
 
@@ -31,7 +31,7 @@ element(add) {
         cy_error(ctx, err_msg);
     }
 
-    push_cy_value(ctx->stack, *ret);
+    push_cy_value(last_stack(ctx), *ret);
 }
 
 /*
@@ -41,8 +41,8 @@ element(add) {
  *  (Num x) -> x * 2
  * */
 element(halve) {
-    CyValue *rhs = pop(ctx->stack);
-    CyValue *lhs = pop(ctx->stack);
+    CyValue *rhs = pop_cy_value(last_stack(ctx));
+    CyValue *lhs = pop_cy_value(last_stack(ctx));
 
     CyValue *ret;
 
@@ -56,7 +56,7 @@ element(halve) {
         return;
     }
 
-    push_cy_value(ctx->stack, *ret);
+    push_cy_value(last_stack(ctx), *ret);
 }
 
 /*
@@ -66,7 +66,7 @@ element(halve) {
  *  () -> "abcdefghijklmnopqrstuvwxyz"
  * */
 element(alphabet) {
-    push_cy_value(ctx->stack, *cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz"));
+    push_cy_value(last_stack(ctx), *cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz"));
 }
 
 /*
@@ -76,7 +76,7 @@ element(alphabet) {
  *  (Any x) -> print(x)
  * */
 element(cy_print) {
-    append_str(&ctx->output, stringify_cy_value(*pop(ctx->stack)));
+    append_str(&ctx->output, stringify_cy_value(*pop_cy_value(last_stack(ctx))));
 }
 
 // function to create an empty CyElements list (you've probably seen this code at least a few times before around the place)

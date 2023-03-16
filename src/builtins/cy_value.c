@@ -160,7 +160,7 @@ void push_cy_value(CyValueList *list, CyValue value) {
 }
 
 // remove the last item of a CyValueList list and return it
-CyValue *pop(CyValueList *list) {
+CyValue *pop_cy_value(CyValueList *list) {
     CyValue *last_value = malloc(sizeof(CyValue));
     *last_value = list->values[list->size - 1];
     list->values = realloc(list->values, (--list->size) * sizeof(CyValue));

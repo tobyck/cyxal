@@ -22,7 +22,7 @@ make install-gmp DIR='/path/for/gmp'
 
 You can put it anywhere you like, as long as it's not in the `cyxal/` directory, `~/Downloads` is fine.
 
-If you're on Linux this is all you need to do, but on Mac I found that the `libgmp.dylib` and `gmp.h` needed to be manually copied into `/usr/local/lib` and `/usr/local/include` respectively. This can be done with `make include-gmp`.
+If you're on Linux this is all you need to do, but on Mac I found that the `libgmp.dylib` and `gmp.h` needed to be manually copied into `/usr/local/lib` and `/usr/local/include` respectively. This can be done with `make include-gmp DIR='path/to/gmp'`, where `DIR` is the same as what is was for installing GMP.
 
 ### Environment
 

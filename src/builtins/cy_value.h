@@ -61,6 +61,6 @@ extern CyValueList *empty_cy_value_list();
 extern init_func_dec(list)(CyValueList *list);
 
 extern void push_cy_value(CyValueList *list, CyValue value);
-extern CyValue *pop(CyValueList *list);
+extern CyValue *pop_cy_value(CyValueList *list);
 
 #endif // CYXAL_CY_VALUE_H
