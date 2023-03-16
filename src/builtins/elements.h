@@ -4,26 +4,18 @@
 #include "cy_value.h"
 #include "../context.h"
 
-// macros to create function headers for different arities
-
-#define nilad(name) CyValue *name(CyContext *ctx)
-#define monad(name) CyValue *name(CyContext *ctx, CyValue *lhs)
-#define dyad(name) CyValue *name(CyContext *ctx, CyValue *lhs, CyValue *rhs)
+#define element(name) void name(CyContext *ctx)
 
 // declarations for elements (to be defined in elements.c)
 
-extern dyad(add);
-extern monad(halve);
-extern nilad(alphabet);
-extern monad(cy_print);
+extern element(add);
+extern element(halve);
+extern element(alphabet);
+extern element(cy_print);
 
 // types for storing element
 
-typedef union {
-    CyValue *(*nilad)(CyContext *);
-    CyValue *(*monad)(CyContext *, CyValue *);
-    CyValue *(*dyad)(CyContext *, CyValue *, CyValue *);
-} CyElementFunc;
+typedef void (*CyElementFunc)(CyContext *);
 
 typedef struct {
     wchar_t *symbol; // the char(s) used in Cyxal to use the element e.g. `W` or `kA`

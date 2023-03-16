@@ -2,10 +2,10 @@
 #include <wchar.h>
 #include "context.h"
 
-CyContext *new_cy_context(CyValueList *args, wchar_t *flags) {
+CyContext *new_cy_context(CyValueList *args) {
     CyContext *ctx = malloc(sizeof(CyContext));
     ctx->args = args;
-    ctx->flags = flags;
+    ctx->stack = empty_cy_value_list();
     ctx->output = malloc(0);
     ctx->error = calloc(0, 0);
     return ctx;

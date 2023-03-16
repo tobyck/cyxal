@@ -13,9 +13,10 @@ bool contains(wchar_t *str, wchar_t chr) {
     return false;
 }
 
-void append_str(wchar_t **dest, wchar_t *src) {
+wchar_t *append_str(wchar_t **dest, wchar_t *src) {
     *dest = realloc(*dest, (wcslen(*dest) + wcslen(src) + 1) * sizeof(wchar_t));
     wcscat(*dest, src);
+    return *dest;
 }
 
 // create a null-terminated string from a char

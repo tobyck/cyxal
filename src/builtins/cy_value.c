@@ -108,6 +108,9 @@ wchar_t *stringify_cy_value(CyValue value) {
         }
         case ListType: {
             CyValueList *list = (CyValueList *)value.other; // variable for the list case to a (CyValueList *) from (void *)
+            if (list->size == 0) {
+                return L"[]";
+            }
             wchar_t *str = malloc(0);
             append_str(&str, L"[ ");
             for (int i = 0; i < list->size; i++) {
@@ -151,8 +154,15 @@ CyValueList *empty_cy_value_list() {
 }
 
 // appends one cyxal value to a cyxal list
-void push_cy_value(CyValue *list, CyValue value) {
-    CyValueList *as_list = list->other; // get a pointer to the actual list not CyValue
-    as_list->values = realloc(as_list->values, (as_list->size + 1) * sizeof(value)); // realloc memory for the new item
-    as_list->values[as_list->size++] = value; // set the last slot of the array to the new item and increment size afterwards
+void push_cy_value(CyValueList *list, CyValue value) {
+    list->values = realloc(list->values, (list->size + 1) * sizeof(value)); // realloc memory for the new item
+    list->values[list->size++] = value; // set the last slot of the array to the new item and increment size afterwards
+}
+
+// remove the last item of a CyValueList list and return it
+CyValue *pop(CyValueList *list) {
+    CyValue *last_value = malloc(sizeof(CyValue));
+    *last_value = list->values[list->size - 1];
+    list->values = realloc(list->values, (--list->size) * sizeof(CyValue));
+    return last_value;
 }

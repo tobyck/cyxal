@@ -30,7 +30,7 @@
 // useful functions
 
 extern bool contains(wchar_t *str, wchar_t chr);
-extern void append_str(wchar_t **dest, wchar_t *src);
+extern wchar_t *append_str(wchar_t **dest, wchar_t *src);
 extern wchar_t *chr_to_str(wchar_t chr);
 extern wchar_t *str_to_wcs(char *str);
 extern char *wcs_to_str(wchar_t *wcs);

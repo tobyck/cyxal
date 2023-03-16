@@ -14,21 +14,24 @@
  *  (Num x, Str y) -> concat(Str(x), y)
  *  (Str x, Str y) -> concat(x, y)
  * */
-dyad(add) {
+element(add) {
+    CyValue *rhs = pop(ctx->stack);
+    CyValue *lhs = pop(ctx->stack);
+
     CyValue *ret;
 
     if (cy_value_is_num(*lhs) && cy_value_is_num(*rhs)) {
         ret = cy_value_new_num(NULL);
         mpq_add(ret->number, lhs->number, rhs->number);
     } else if (cy_value_is_str(*lhs) || cy_value_is_str(*rhs)) {
-        ret = cy_value_new_str(wcscat(lhs->other, rhs->other));
+        ret = cy_value_new_str(append_str((wchar_t **)&lhs->other, rhs->other));
     } else {
         wchar_t err_msg[65];
         swprintf(err_msg, 65, L"Invalid combination of types for element 'add': '%ls' and '%ls'", stringify_cy_type(lhs->type), stringify_cy_type(rhs->type));
         cy_error(ctx, err_msg);
     }
 
-    return ret;
+    push_cy_value(ctx->stack, *ret);
 }
 
 /*
@@ -37,7 +40,10 @@ dyad(add) {
  * Overloads
  *  (Num x) -> x * 2
  * */
-monad(halve) {
+element(halve) {
+    CyValue *rhs = pop(ctx->stack);
+    CyValue *lhs = pop(ctx->stack);
+
     CyValue *ret;
 
     if (cy_value_is_num(*lhs)) {
@@ -47,9 +53,10 @@ monad(halve) {
         wchar_t err_msg[39];
         swprintf(err_msg, 39, L"Invalid type '%ls' for element 'halve'", stringify_cy_type(lhs->type));
         cy_error(ctx, err_msg);
+        return;
     }
 
-    return ret;
+    push_cy_value(ctx->stack, *ret);
 }
 
 /*
@@ -58,8 +65,8 @@ monad(halve) {
  * Overloads
  *  () -> "abcdefghijklmnopqrstuvwxyz"
  * */
-nilad(alphabet) {
-    return cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz");
+element(alphabet) {
+    push_cy_value(ctx->stack, *cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz"));
 }
 
 /*
@@ -68,9 +75,8 @@ nilad(alphabet) {
  * Overloads:
  *  (Any x) -> print(x)
  * */
-monad(cy_print) {
-    append_str(&ctx->output, stringify_cy_value(*lhs));
-    return cy_value_new_empty(NullType); // return nothing
+element(cy_print) {
+    append_str(&ctx->output, stringify_cy_value(*pop(ctx->stack)));
 }
 
 // function to create an empty CyElements list (you've probably seen this code at least a few times before around the place)
@@ -104,7 +110,7 @@ CyElementFunc func_for_element(CyElementList *list, wchar_t *symbol) {
             return list->elements[i].func;
         }
     }
-    return (CyElementFunc){};
+    return NULL;
 }
 
 // gets an array of all the symbols for the elements
@@ -119,10 +125,10 @@ wchar_t **elements_symbols(CyElementList *list) {
 CyElementList *get_elements(void) {
     CyElementList *elements = empty_cy_element_list();
 
-    add_element(elements, (CyElement){ L"+", .func.dyad = add });
-    add_element(elements, (CyElement){ L"½", .func.monad = halve });
-    add_element(elements, (CyElement){ L"ka", .func.nilad = alphabet });
-    add_element(elements, (CyElement){ L",", .func.monad = cy_print });
+    add_element(elements, (CyElement){ L"+", add });
+    add_element(elements, (CyElement){ L"½", halve });
+    add_element(elements, (CyElement){ L"ka", alphabet });
+    add_element(elements, (CyElement){ L",", cy_print });
 
     return elements;
 }
