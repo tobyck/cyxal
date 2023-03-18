@@ -4,11 +4,11 @@
 #include <wchar.h>
 #include "helpers.h"
 
-CyValue vectorise(CyContext *ctx, CyElement element, CyValue args[element.arity_in]) {
+CyValue vectorise(CyContext *ctx, CyElement element, CyValueList args) {
     bool no_lists = true;
 
     for (int i = 0; i < element.arity_in; i++) {
-        if (args[i].type == ListType) {
+        if (args.values[i].type == ListType) {
             no_lists = false;
         }
     }
@@ -16,7 +16,7 @@ CyValue vectorise(CyContext *ctx, CyElement element, CyValue args[element.arity_
     if (no_lists) {
         push_empty_stack(ctx);
         for (int i = 0; i < element.arity_in; i++) {
-            push_cy_value(last_stack(ctx), args[i]);
+            push_cy_value(last_stack(ctx), args.values[i]);
         }
         element.func(ctx);
         CyValue result = *pop_arg(ctx);
@@ -27,24 +27,24 @@ CyValue vectorise(CyContext *ctx, CyElement element, CyValue args[element.arity_
     size_t longest_arg_length = 0; // set the longest to 0 initially
 
     for (int i = 0; i < element.arity_in; i++) { // for each arg
-        if (args[i].type == ListType && ((CyValueList *)args[i].other)->size > longest_arg_length) { // if it's longer than the longest found so far
-            longest_arg_length = ((CyValueList *)args[i].other)->size; // set it to the new longest
+        if (args.values[i].type == ListType && ((CyValueList *)args.values[i].other)->size > longest_arg_length) { // if it's longer than the longest found so far
+            longest_arg_length = ((CyValueList *)args.values[i].other)->size; // set it to the new longest
         }
     }
 
     for (int i = 0; i < element.arity_in; i++) {
         // if the arg isn't a list turn it into a list full of the value
-        if (args[i].type != ListType) {
+        if (args.values[i].type != ListType) {
             CyValue *new_list = cy_value_new_list(empty_cy_value_list());
             // fill it with the value to it's the length of the longest
             for (int _ = 0; _ < longest_arg_length; _++) {
-                push_cy_value(new_list->other, args[i]);
+                push_cy_value(new_list->other, args.values[i]);
             }
-            args[i] = *new_list;
+            args.values[i] = *new_list;
         } else {
-            if (((CyValueList *)args[i].other)->size < longest_arg_length) {
-                while (((CyValueList *)args[i].other)->size < longest_arg_length) {
-                    push_cy_value(args[i].other, *cy_value_new_num(L"0"));
+            if (((CyValueList *)args.values[i].other)->size < longest_arg_length) {
+                while (((CyValueList *)args.values[i].other)->size < longest_arg_length) {
+                    push_cy_value(args.values[i].other, *cy_value_new_num(L"0"));
                 }
             }
         }
@@ -55,7 +55,7 @@ CyValue vectorise(CyContext *ctx, CyElement element, CyValue args[element.arity_
     for (int i = 0; i < longest_arg_length; i++) {
         push_empty_stack(ctx);
         for (int j = 0; j < element.arity_in; j++) {
-            push_cy_value(last_stack(ctx), ((CyValueList *)args[j].other)->values[i]);
+            push_cy_value(last_stack(ctx), ((CyValueList *)args.values[j].other)->values[i]);
         }
         element.func(ctx);
         push_cy_value(result, *pop_arg(ctx));

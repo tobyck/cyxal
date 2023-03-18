@@ -37,7 +37,7 @@ element(add) {
 
 element(vectorising_add) {
     CyElement el = { NULL, add, 2, 1 };
-    CyValue args[] = { *pop_arg(ctx), *pop_arg(ctx) };
+    CyValueList args = pop_args(ctx, el.arity_in);
     push_cy_value(last_stack(ctx), vectorise(ctx, el, args));
 }
 
@@ -68,7 +68,7 @@ element(halve) {
 
 element(vectorising_halve) {
     CyElement el = { NULL, halve, 1, 1 };
-    CyValue args[] = { *pop_arg(ctx) };
+    CyValueList args = pop_args(ctx, el.arity_in);
     push_cy_value(last_stack(ctx), vectorise(ctx, el, args));
 }
 

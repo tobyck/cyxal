@@ -59,9 +59,8 @@ CyTokenArray *lex(wchar_t *code) {
             if (i < wcslen(code)) append_str(&c_as_str, chr_to_str(c)); // append start
             push_cy_token(tokens, (CyToken) {c == COMPRESSED_STR_DEL ? CompressedStringToken : CompressedNumberToken, c_as_str});
         } else if (c == CHAR_DELIMITER) {
-            if (i < wcslen(code) - 1) {// If at least 1 char left
-                append_str(&c_as_str,
-                           chr_to_str(code[++i])); // it's okay to do this since string is never modified again
+            if (i < wcslen(code) - 1) { // if at least 1 char left
+                append_str(&c_as_str,chr_to_str(code[++i])); // it's okay to do this since string is never modified again
                 push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
             }
         } else if (c == DOUBLE_CHAR_STR && i < wcslen(code) - 2) {

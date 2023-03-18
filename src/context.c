@@ -38,6 +38,18 @@ CyValue *pop_arg(CyContext *ctx) {
     return pop_cy_value(last_stack(ctx));
 }
 
+CyValueList pop_args(CyContext *ctx, size_t n) {
+    CyValue popped[n];
+    for (int i = 0; i < n; i++) {
+        popped[i] = *pop_arg(ctx);
+    }
+    CyValueList *reversed = empty_cy_value_list();
+    for (int i = n - 1; i >= 0; i--) {
+        push_cy_value(reversed, popped[i]);
+    }
+    return *reversed;
+}
+
 void cy_error(CyContext *ctx, wchar_t *message) {
     ctx->error = wcscat(ctx->error, message);
 }

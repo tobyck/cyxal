@@ -24,5 +24,6 @@ extern void push_empty_stack(CyContext *ctx);
 extern CyValueList *last_stack(CyContext *ctx);
 extern CyValueList *pop_stack(CyContext *ctx);
 extern CyValue *pop_arg(CyContext *ctx);
+extern CyValueList pop_args(CyContext *ctx, size_t n);
 
 #endif // CYXAL_CONTEXT_H
