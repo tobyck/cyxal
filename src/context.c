@@ -28,6 +28,16 @@ CyValueList *last_stack(CyContext *ctx) {
     return ctx->stacks->stacks[ctx->stacks->size - 1];
 }
 
+CyValueList *pop_stack(CyContext *ctx) {
+    CyValueList *ret = last_stack(ctx);
+    ctx->stacks->stacks = realloc(ctx->stacks->stacks, (--ctx->stacks->size) * sizeof(CyValueList));
+    return ret;
+}
+
+CyValue *pop_arg(CyContext *ctx) {
+    return pop_cy_value(last_stack(ctx));
+}
+
 void cy_error(CyContext *ctx, wchar_t *message) {
     ctx->error = wcscat(ctx->error, message);
 }

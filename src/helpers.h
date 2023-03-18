@@ -2,6 +2,9 @@
 #define CYXAL_HELPERS_H
 
 #include <stdbool.h>
+#include "builtins/cy_value.h"
+#include "builtins/elements.h"
+#include "context.h"
 
 // constants
 
@@ -27,13 +30,15 @@
 #define GET_VAR L'←'
 #define SET_VAR L'→'
 #define CHAR_NUMBER L'⁺'
+
 // useful functions
 
+extern CyValue vectorise(CyContext *ctx, CyElement element, CyValue args[]);
 extern bool contains(wchar_t *str, wchar_t chr);
 extern wchar_t *append_str(wchar_t **dest, wchar_t *src);
 extern wchar_t *chr_to_str(wchar_t chr);
 extern wchar_t *str_to_wcs(char *str);
 extern char *wcs_to_str(wchar_t *wcs);
-extern bool is_letter(wchar_t wc);
+extern bool is_letter(wchar_t wcs);
 
 #endif // CYXAL_HELPERS_H

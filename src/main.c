@@ -11,6 +11,7 @@
 #include "builtins/elements.h"
 #include "context.h"
 #include "../tests/test_lexer.c"
+#include "helpers.h"
 
 void test_lexer_input() {
     wchar_t *input = malloc(128);
@@ -54,10 +55,31 @@ void test_context() {
     printf("Output: %ls\n", ctx->output);
 }
 
+void test_vectorise() {
+    CyContext *ctx = new_cy_context(empty_cy_value_list());
+
+    CyValue *list1 = cy_value_new_list(empty_cy_value_list());
+    push_cy_value(list1->other, *cy_value_new_num(L"1"));
+    push_cy_value(list1->other, *cy_value_new_num(L"2"));
+
+    CyValue *list2 = cy_value_new_list(empty_cy_value_list());
+    push_cy_value(list2->other, *cy_value_new_num(L"3"));
+    push_cy_value(list2->other, *cy_value_new_num(L"4"));
+    push_cy_value(list2->other, *cy_value_new_num(L"5"));
+
+    push_cy_value(last_stack(ctx), *list1);
+    push_cy_value(last_stack(ctx), *list2);
+
+    vectorising_add(ctx);
+    cy_print(ctx);
+
+    printf("result: %ls\n", ctx->output);
+}
+
 int main() {
     setlocale(LC_ALL, "");
 
-    test_context();
+    test_vectorise();
 
     return 0;
 }

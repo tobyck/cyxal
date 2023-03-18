@@ -22,5 +22,7 @@ extern void cy_error(CyContext *ctx, wchar_t *message);
 extern StackList *empty_stack_list(void);
 extern void push_empty_stack(CyContext *ctx);
 extern CyValueList *last_stack(CyContext *ctx);
+extern CyValueList *pop_stack(CyContext *ctx);
+extern CyValue *pop_arg(CyContext *ctx);
 
 #endif // CYXAL_CONTEXT_H

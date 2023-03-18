@@ -14,9 +14,10 @@
  *  (Num x, Str y) -> concat(Str(x), y)
  *  (Str x, Str y) -> concat(x, y)
  * */
+
 element(add) {
-    CyValue *rhs = pop_cy_value(last_stack(ctx));
-    CyValue *lhs = pop_cy_value(last_stack(ctx));
+    CyValue *rhs = pop_arg(ctx);
+    CyValue *lhs = pop_arg(ctx);
 
     CyValue *ret;
 
@@ -34,15 +35,21 @@ element(add) {
     push_cy_value(last_stack(ctx), *ret);
 }
 
+element(vectorising_add) {
+    CyElement el = { NULL, add, 2, 1 };
+    CyValue args[] = { *pop_arg(ctx), *pop_arg(ctx) };
+    push_cy_value(last_stack(ctx), vectorise(ctx, el, args));
+}
+
 /*
  * Element: ½
  * Vectorising: yes
  * Overloads
  *  (Num x) -> x * 2
  * */
+
 element(halve) {
-    CyValue *rhs = pop_cy_value(last_stack(ctx));
-    CyValue *lhs = pop_cy_value(last_stack(ctx));
+    CyValue *lhs = pop_arg(ctx);
 
     CyValue *ret;
 
@@ -59,12 +66,19 @@ element(halve) {
     push_cy_value(last_stack(ctx), *ret);
 }
 
+element(vectorising_halve) {
+    CyElement el = { NULL, halve, 1, 1 };
+    CyValue args[] = { *pop_arg(ctx) };
+    push_cy_value(last_stack(ctx), vectorise(ctx, el, args));
+}
+
 /*
  * Element: ka
  * Vectorising: no
  * Overloads
  *  () -> "abcdefghijklmnopqrstuvwxyz"
  * */
+
 element(alphabet) {
     push_cy_value(last_stack(ctx), *cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz"));
 }
@@ -75,8 +89,9 @@ element(alphabet) {
  * Overloads:
  *  (Any x) -> print(x)
  * */
+
 element(cy_print) {
-    append_str(&ctx->output, stringify_cy_value(*pop_cy_value(last_stack(ctx))));
+    append_str(&ctx->output, stringify_cy_value(*pop_arg(ctx)));
 }
 
 // function to create an empty CyElements list (you've probably seen this code at least a few times before around the place)
@@ -122,13 +137,22 @@ wchar_t **elements_symbols(CyElementList *list) {
     return symbols;
 }
 
+CyElement get_element(CyElementList *list, wchar_t *symbol) {
+    for (int i = 0; i < list->size; i++) {
+        if (wcscmp(list->elements[i].symbol, symbol) == 0) {
+            return list->elements[i];
+        }
+    }
+    return (CyElement){};
+}
+
 CyElementList *get_elements(void) {
     CyElementList *elements = empty_cy_element_list();
 
-    add_element(elements, (CyElement){ L"+", add });
-    add_element(elements, (CyElement){ L"½", halve });
-    add_element(elements, (CyElement){ L"ka", alphabet });
-    add_element(elements, (CyElement){ L",", cy_print });
+    add_element(elements, (CyElement){ L"+", vectorising_add, 2, 1 });
+    add_element(elements, (CyElement){ L"½", vectorising_halve, 1, 1 });
+    add_element(elements, (CyElement){ L"ka", alphabet, 0, 1 });
+    add_element(elements, (CyElement){ L",", cy_print, 1, 0 });
 
     return elements;
 }

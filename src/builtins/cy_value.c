@@ -134,12 +134,8 @@ wchar_t *stringify_cy_value(CyValue value) {
             wcscpy(str + wcslen(str) - 2, L" ]"); // replace the last ", " with " ]"
             return str;
         }
-        case FunctionType: {
-            size_t max_size = wcslen(value.other) + 12;
-            wchar_t *str = malloc(max_size * sizeof(wchar_t));
-            swprintf(str, max_size, L"<lambda \"%ls\">", (wchar_t *)value.other);
-            return str;
-        }
+        case FunctionType:
+            return L"<lambda>";
         case NullType:
             return L"<null>";
     }

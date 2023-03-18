@@ -1,9 +1,69 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include <string.h>
 #include <wchar.h>
 #include "helpers.h"
+
+CyValue vectorise(CyContext *ctx, CyElement element, CyValue args[element.arity_in]) {
+    bool no_lists = true;
+
+    for (int i = 0; i < element.arity_in; i++) {
+        if (args[i].type == ListType) {
+            no_lists = false;
+        }
+    }
+
+    if (no_lists) {
+        push_empty_stack(ctx);
+        for (int i = 0; i < element.arity_in; i++) {
+            push_cy_value(last_stack(ctx), args[i]);
+        }
+        element.func(ctx);
+        CyValue result = *pop_arg(ctx);
+        pop_stack(ctx);
+        return result;
+    }
+
+    size_t longest_arg_length = 0; // set the longest to 0 initially
+
+    for (int i = 0; i < element.arity_in; i++) { // for each arg
+        if (args[i].type == ListType && ((CyValueList *)args[i].other)->size > longest_arg_length) { // if it's longer than the longest found so far
+            longest_arg_length = ((CyValueList *)args[i].other)->size; // set it to the new longest
+        }
+    }
+
+    for (int i = 0; i < element.arity_in; i++) {
+        // if the arg isn't a list turn it into a list full of the value
+        if (args[i].type != ListType) {
+            CyValue *new_list = cy_value_new_list(empty_cy_value_list());
+            // fill it with the value to it's the length of the longest
+            for (int _ = 0; _ < longest_arg_length; _++) {
+                push_cy_value(new_list->other, args[i]);
+            }
+            args[i] = *new_list;
+        } else {
+            if (((CyValueList *)args[i].other)->size < longest_arg_length) {
+                while (((CyValueList *)args[i].other)->size < longest_arg_length) {
+                    push_cy_value(args[i].other, *cy_value_new_num(L"0"));
+                }
+            }
+        }
+    }
+
+    CyValueList *result = empty_cy_value_list();
+
+    for (int i = 0; i < longest_arg_length; i++) {
+        push_empty_stack(ctx);
+        for (int j = 0; j < element.arity_in; j++) {
+            push_cy_value(last_stack(ctx), ((CyValueList *)args[j].other)->values[i]);
+        }
+        element.func(ctx);
+        push_cy_value(result, *pop_arg(ctx));
+        pop_stack(ctx);
+    }
+
+    return *cy_value_new_list(result);
+}
 
 // checks if a string contains a certain char
 bool contains(wchar_t *str, wchar_t chr) {
@@ -41,6 +101,6 @@ char *wcs_to_str(wchar_t *wcs) {
     return c;
 }
 // returns whether a char is a letter
-bool is_letter(wchar_t wc) {
-    return (wc >= L'a' && wc <= L'z') || (wc >= L'A' && wc <= L'Z');
+bool is_letter(wchar_t wcs) {
+    return (wcs >= L'a' && wcs <= L'z') || (wcs >= L'A' && wcs <= L'Z');
 }
