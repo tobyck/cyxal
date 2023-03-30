@@ -34,7 +34,7 @@ CyTokenArray *lex(wchar_t *code) {
         wchar_t *c_as_str = chr_to_str(c);
 
         if (contains(DIGITS_WITH_DEC, c)) { // if the char is a digit (or a dec. place)
-            push_cy_token(tokens, (CyToken) { NumberToken, c_as_str });
+            push_cy_token(tokens, (CyToken) { ConstantToken, c_as_str });
             i++; // consume current char
             bool has_dec = c == DEC_PLACE;
             for (; i < wcslen(code) && (contains(DIGITS_WITH_DEC, code[i]) || code[i] == '_'); i++) {
@@ -57,17 +57,17 @@ CyTokenArray *lex(wchar_t *code) {
             i++; // consume start
             for (; i < wcslen(code) && code[i] != c; i++) append_str(&c_as_str, chr_to_str(code[i]));
             if (i < wcslen(code)) append_str(&c_as_str, chr_to_str(c)); // append start
-            push_cy_token(tokens, (CyToken) {c == COMPRESSED_STR_DEL ? CompressedStringToken : CompressedNumberToken, c_as_str});
+            push_cy_token(tokens, (CyToken) {ConstantToken, c_as_str});
         } else if (c == CHAR_DELIMITER) {
             if (i < wcslen(code) - 1) {// If at least 1 char left
                 append_str(&c_as_str,
                            chr_to_str(code[++i])); // it's okay to do this since string is never modified again
-                push_cy_token(tokens, (CyToken) {CharToken, c_as_str});
+                push_cy_token(tokens, (CyToken) {ConstantToken, c_as_str});
             }
         } else if (c == DOUBLE_CHAR_STR && i < wcslen(code) - 2) {
             append_str(&c_as_str, chr_to_str(code[++i]));
             append_str(&c_as_str, chr_to_str(code[++i]));
-            push_cy_token(tokens, (CyToken) {TwoCharToken, c_as_str});
+            push_cy_token(tokens, (CyToken) {ConstantToken, c_as_str});
         } else if (c == COMMENT) {
             if (i < wcslen(code) - 1 && code[i + 1] == OPEN_BLOCK_COMMENT) {
                 int depth = 1; // comment depth
@@ -88,7 +88,7 @@ CyTokenArray *lex(wchar_t *code) {
                 for (; i < wcslen(code) && code[i] != NEWLINE; i++); // move forward until newline or eof
             }
         } else if (c == GET_VAR || c == SET_VAR) {
-            push_cy_token(tokens, (CyToken) {c == GET_VAR ? VarGetToken : VarSetToken, c_as_str});
+            push_cy_token(tokens, (CyToken) {VarToken, c_as_str});
             i++; // consume var char
             for (; i < wcslen(code) && (isalpha(code[i]) || code[i] == L'_'); i++) {
                 append_str(&tokens->tokens[tokens->size - 1].src, chr_to_str(code[i]));
@@ -97,7 +97,7 @@ CyTokenArray *lex(wchar_t *code) {
         } else if (c == CHAR_NUMBER) {
             if (i < wcslen(code) - 1) {
                 append_str(&c_as_str, chr_to_str(code[++i]));
-                push_cy_token(tokens, (CyToken) {CharNumberToken, c_as_str});
+                push_cy_token(tokens, (CyToken) {ConstantToken  , c_as_str});
             }
         } else if (c == STRING_DELIMETER) {
             i++; // consume `
@@ -108,7 +108,7 @@ CyTokenArray *lex(wchar_t *code) {
                 }
             }
             if (i < wcslen(code)) append_str(&c_as_str, chr_to_str(STRING_DELIMETER));
-            push_cy_token(tokens, (CyToken) {StringToken, c_as_str});
+            push_cy_token(tokens, (CyToken) {ConstantToken, c_as_str});
         } else if (c == NEWLINE) {
             push_cy_token(tokens, (CyToken) {NewlineToken, c_as_str}); // for lambda to newline
         } else if (c != SPACE) {

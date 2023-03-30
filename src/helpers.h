@@ -2,6 +2,7 @@
 #define CYXAL_HELPERS_H
 
 #include <stdbool.h>
+#include <wchar.h>
 
 // constants
 
@@ -27,6 +28,8 @@
 #define GET_VAR L'←'
 #define SET_VAR L'→'
 #define CHAR_NUMBER L'⁺'
+#define CODEPAGE L"λƛ¬∧⟑∨⟇÷×«\n»°•ß†€½∆ø↔¢⌐æʀʁɾɽÞƈ∞¨ !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]`^_abcdefghijklmnopqrstuvwxyz{|}~↑↓∴∵›‹∷¤ð→←βτȧḃċḋėḟġḣḭŀṁṅȯṗṙṡṫẇẋẏż√⟨⟩‛₀₁₂₃₄₅₆₇₈¶⁋§ε¡∑¦≈µȦḂĊḊĖḞĠḢİĿṀṄȮṖṘṠṪẆẊẎŻ₌₍⁰¹²∇⌈⌊¯±₴…□↳↲⋏⋎꘍ꜝ℅≤≥≠⁼ƒɖ∪∩⊍£¥⇧⇩ǍǎǏǐǑǒǓǔ⁽‡≬⁺↵⅛¼¾Π„‟"
+
 // useful functions
 
 extern bool contains(wchar_t *str, wchar_t chr);

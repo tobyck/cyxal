@@ -57,43 +57,43 @@ void test_lexer() {
     int passed = 0;
     int total = 0;
     passed += run_test(L"1 2 +", 3, (CyToken[]){
-        { NumberToken, L"1" },
-        { NumberToken, L"2" },
+        { ConstantToken, L"1" },
+        { ConstantToken, L"2" },
         { GeneralToken, L"+" }
     }); total++;
     passed += run_test(L"`abc\\`def` `hij", 2, (CyToken[]){
-        { StringToken, L"`abc\\`def`" },
-        { StringToken, L"`hij" }
+        { ConstantToken, L"`abc\\`def`" },
+        { ConstantToken, L"`hij" }
     }); total++;
     passed += run_test(L"«abc« »abc»", 2, (CyToken[]){
-            { CompressedStringToken, L"«abc«" },
-            { CompressedNumberToken, L"»abc»" }
+            { ConstantToken, L"«abc«" },
+            { ConstantToken, L"»abc»" }
     }); total++;
     passed += run_test(L"\\a ‛ab \\", 2, (CyToken[]){
-            { CharToken, L"\\a" },
-            { TwoCharToken, L"‛ab" }
+            { ConstantToken, L"\\a" },
+            { ConstantToken, L"‛ab" }
     }); total++;
     passed += run_test(L"1 # 2 \n 3", 2, (CyToken[]){
-            { NumberToken, L"1" },
-            { NumberToken, L"3" }
+            { ConstantToken, L"1" },
+            { ConstantToken, L"3" }
     }); total++;
     passed += run_test(L"1 #{#{ 2 }#}# 3 #{ # 4", 2, (CyToken[]){
-            { NumberToken, L"1" },
-            { NumberToken, L"3" }
+            { ConstantToken, L"1" },
+            { ConstantToken, L"3" }
     }); total++;
     passed += run_test(L"←a_B1→cd←", 4, (CyToken[]){
-            { VarGetToken, L"←a_B" },
-            { NumberToken, L"1" },
-            { VarSetToken, L"→cd" },
-            { VarGetToken, L"←" }
+            { VarToken, L"←a_B" },
+            { ConstantToken, L"1" },
+            { VarToken, L"→cd" },
+            { VarToken, L"←" }
     }); total++;
     passed += run_test(L"⁺4 4 ⁺", 2, (CyToken[]){
-            { CharNumberToken, L"⁺4" },
-            { NumberToken, L"4" }
+            { ConstantToken, L"⁺4" },
+            { ConstantToken, L"4" }
     }); total++;
     passed += run_test(L"1_2.3 4_5", 2, (CyToken[]){
-            { NumberToken, L"1_2.3" },
-            { NumberToken, L"4_5" }
+            { ConstantToken, L"1_2.3" },
+            { ConstantToken, L"4_5" }
     }); total++;
     passed += run_test(L"ka z Þp", 3, (CyToken[]){
             { GeneralToken, L"ka" },

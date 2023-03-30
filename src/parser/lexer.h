@@ -8,16 +8,9 @@
 // token related types
 
 typedef enum {
-    NumberToken,
+    ConstantToken,
     GeneralToken, // Elements / modifiers / structures / whatever. The parser deals with this
-    StringToken,
-    CompressedStringToken,
-    CompressedNumberToken,
-    VarSetToken,
-    VarGetToken,
-    CharToken,
-    TwoCharToken,
-    CharNumberToken,
+    VarToken,
     NewlineToken
 } CyTokenType;
 

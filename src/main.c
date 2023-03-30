@@ -57,7 +57,7 @@ void test_context() {
 int main() {
     setlocale(LC_ALL, "");
 
-    test_context();
+    test_lexer();
 
     return 0;
 }
