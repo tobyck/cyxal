@@ -1,5 +1,5 @@
 CC = clang
-OUT_DIR = ./build/debug/
+OUT_DIR = build/debug
 
 OUTPUT_FILE = $(OUT_DIR)/cyxal
 
@@ -8,14 +8,14 @@ build: src
 
 run: $(OUTPUT_FILE)
 	make build
-	$(OUTPUT_FILE)
+	./$(OUTPUT_FILE)
 
 debug:
 	make build FLAGS=-g
 	lldb $(OUTPUT_FILE)
 
 clean:
-	rm build/**/*
+	find build/*/* ! -name '*.md' -delete
 
 install-gmp:
 ifndef DIR
