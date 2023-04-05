@@ -20,17 +20,17 @@ extern element(cy_print);
 typedef void (*CyElementFunc)(CyContext *);
 
 typedef struct {
-    wchar_t *symbol; // the char(s) used in Cyxal to use the element e.g. `W` or `kA`
-    CyElementFunc func; // pointer to a function for the element
-    size_t arity_in; // how many arguments the element takes
-    size_t arity_out; // how many values the element pushes
+	wchar_t *symbol; // the char(s) used in Cyxal to use the element e.g. `W` or `kA`
+	CyElementFunc func; // pointer to a function for the element
+	size_t arity_in; // how many arguments the element takes
+	size_t arity_out; // how many values the element pushes
 } CyElement;
 
 // struct to store an array of CyElements and their size
 
 typedef struct {
-    CyElement *elements; // pointer to the first element
-    size_t size;
+	CyElement *elements; // pointer to the first element
+	size_t size;
 } CyElementList;
 
 // functions for initialising and accessing CyElementLists

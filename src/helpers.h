@@ -33,7 +33,7 @@
 
 // useful functions
 
-extern CyValue vectorise(CyContext *ctx, CyElement element, CyValueList args);
+extern CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList args);
 extern bool contains(wchar_t *str, wchar_t chr);
 extern wchar_t *append_str(wchar_t **dest, wchar_t *src);
 extern wchar_t *chr_to_str(wchar_t chr);

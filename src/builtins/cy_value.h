@@ -7,11 +7,10 @@
 // enum for the type of CyValue
 
 typedef enum {
-    NumberType,
-    StringType,
-    ListType,
-    FunctionType,
-    NullType // for elements which don't push anything
+	NumberType,
+	StringType,
+	ListType,
+	FunctionType
 } CyType;
 
 extern wchar_t *stringify_cy_type(CyType type);
@@ -25,9 +24,10 @@ extern wchar_t *stringify_cy_type(CyType type);
  * */
 
 typedef struct {
-    CyType type;
-    mpq_t number;
-    void *other;
+	CyType type;
+	mpq_t number;
+	void *other;
+	bool can_free;
 } CyValue;
 
 // functions to create new instances of CyValues
@@ -38,6 +38,10 @@ extern init_func_dec(empty)(CyType type);
 extern init_func_dec(num)(wchar_t *new_str);
 extern init_func_dec(str)(wchar_t *str);
 extern init_func_dec(func)(wchar_t *src);
+
+extern CyValue *freeable(CyValue *value);
+
+extern void free_cy_value(CyValue *value);
 
 // functions to check if a CyValue is a certain type
 
@@ -53,14 +57,16 @@ extern wchar_t *stringify_cy_value(CyValue value);
 // struct and functions for a lists of CyValues
 
 typedef struct {
-    CyValue *values;
-    size_t size;
+	CyValue *values;
+	size_t size;
 } CyValueList;
 
-extern CyValueList *empty_cy_value_list();
-extern init_func_dec(list)(CyValueList *list);
+extern CyValueList *empty_cy_value_list(void);
 
-extern void push_cy_value(CyValueList *list, CyValue value);
+extern void free_cy_value_list(CyValueList *list);
+extern init_func_dec(list)(CyValueList *list);
+extern void push_cy_value(CyValueList *list, CyValue *value);
 extern CyValue *pop_cy_value(CyValueList *list);
+extern bool cy_value_eq(CyValue lhs, CyValue rhs);
 
 #endif // CYXAL_CY_VALUE_H

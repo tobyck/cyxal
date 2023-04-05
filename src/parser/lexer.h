@@ -1,36 +1,35 @@
 #ifndef CYXAL_TOKENISER_H
 #define CYXAL_TOKENISER_H
 
-#include <stdlib.h>
 #include <stdbool.h>
 #include <wchar.h>
 
 // token related types
 
 typedef enum {
-    NumberToken,
-    GeneralToken, // Elements / modifiers / structures / whatever. The parser deals with this
-    StringToken,
-    CompressedStringToken,
-    CompressedNumberToken,
-    VarSetToken,
-    VarGetToken,
-    CharToken,
-    TwoCharToken,
-    CharNumberToken,
-    NewlineToken
+	NumberToken,
+	GeneralToken, // Elements / modifiers / structures / whatever. The parser deals with this
+	StringToken,
+	CompressedStringToken,
+	CompressedNumberToken,
+	VarSetToken,
+	VarGetToken,
+	CharToken,
+	TwoCharToken,
+	CharNumberToken,
+	NewlineToken
 } CyTokenType;
 
 typedef struct {
-    CyTokenType type;
-    wchar_t *src;
+	CyTokenType type;
+	wchar_t *src;
 } CyToken;
 
 // token array struct
 
 typedef struct {
-    CyToken *tokens; // pointer to the start of the array - the first token
-    size_t size; // the current size of the array
+	CyToken *tokens; // pointer to the start of the array - the first token
+	size_t size; // the current size of the array
 } CyTokenArray;
 
 // methods for CyTokenArrays and CyTokens

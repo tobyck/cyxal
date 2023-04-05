@@ -53,4 +53,3 @@ Below are descriptions of what each folder is for.
   - `parser`: Contains the tokeniser to split code into a flat list of simple tokens e.g. "number" or "open structure", and the parser which groups those tokens to be executed by the interpreter.
   - `builtins`: Contains types and methods regarding the `CyValue` struct which is used to store any type available in Cyxal, and files containing the elements, modifiers, and structures.
 - `build`: Files from `src` are compiled into an executable which lives here. This folder can be emptied with `make clean`.
-- `gmp`: Files for the GMP.

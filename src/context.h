@@ -4,18 +4,19 @@
 #include "builtins/cy_value.h"
 
 typedef struct {
-    CyValueList **stacks;
-    size_t size;
+	CyValueList **stacks;
+	size_t size;
 } StackList;
 
 typedef struct {
-    CyValueList *args;
-    StackList *stacks;
-    wchar_t *output;
-    wchar_t *error;
+	CyValueList *args;
+	StackList *stacks;
+	wchar_t *output;
+	wchar_t *error;
 } CyContext;
 
 extern CyContext *new_cy_context(CyValueList *args);
+extern void free_cy_context(CyContext *ctx);
 // todo: change to allow formatting string directly in them - a cy_errorf sort-of thing
 extern void cy_error(CyContext *ctx, wchar_t *message);
 

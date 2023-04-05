@@ -8,157 +8,210 @@
 
 // get a string from a CyType
 wchar_t *stringify_cy_type(CyType type) {
-    switch (type) {
-        case NumberType: return L"Num";
-        case StringType: return L"Str";
-        case ListType: return L"List";
-        case FunctionType: return L"Func";
-        case NullType: return L"Null";
-    }
+	switch (type) {
+		case NumberType:
+			return L"Num";
+		case StringType:
+			return L"Str";
+		case ListType:
+			return L"List";
+		case FunctionType:
+			return L"Func";
+	}
 }
 
 // creates a new CyValue with just the provided type from the enum in cy_value.h
 CyValue *cy_value_new_empty(CyType type) {
-    CyValue *value = malloc(sizeof(CyValue)); // allocate just enough memory
-    value->type = type; // set the type and nothing else
-    return value;
+	CyValue *value = malloc(sizeof(CyValue)); // allocate just enough memory
+	value->type = type; // set the type and nothing else
+	return value;
 }
 
 // create a new CyValue with NumberType given a string representation of a number
 CyValue *cy_value_new_num(wchar_t *num_as_str) {
-    CyValue *value = cy_value_new_empty(NumberType);
-    mpq_init(value->number);
+	CyValue *value = cy_value_new_empty(NumberType);
+	mpq_init(value->number);
 
-    if (num_as_str == NULL) return value;
+	if (num_as_str == NULL) return value;
 
-    mpz_t denominator; // arbitrary-precision integer
-    mpz_init(denominator); // initialise
-    mpz_set_ui(denominator, 1); // set to 1
-    if (contains(num_as_str, DEC_PLACE)) { // if there's a decimal point in the number
-        for (int i = 0; i < wcslen(num_as_str); i++) { // for each number in the range [0, strlen(num_as_str))
-            if (num_as_str[wcslen(num_as_str) - 1 - i] == DEC_PLACE) { // if we've found the decimal point
-                mpz_set_ui(denominator, pow(10, i)); // set the denominator to 10 ^ i
-                break;
-            }
-        }
-    }
+	mpz_t denominator; // arbitrary-precision integer
+	mpz_init(denominator); // initialise
+	mpz_set_ui(denominator, 1); // set to 1
+	if (contains(num_as_str, DEC_PLACE)) { // if there's a decimal point in the number
+		for (int i = 0; i < wcslen(num_as_str); i++) { // for each number in the range [0, strlen(num_as_str))
+			if (num_as_str[wcslen(num_as_str) - 1 - i] == DEC_PLACE) { // if we've found the decimal point
+				mpz_set_ui(denominator, pow(10, i)); // set the denominator to 10 ^ i
+				break;
+			}
+		}
+	}
 
-    wchar_t *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically append to with append_str
-    for (int i = 0; i < wcslen(num_as_str); i++) {
-        if (num_as_str[i] != DEC_PLACE) { // if the char is not a decimal place
-            append_str(&numerator_str, chr_to_str(num_as_str[i])); // create string from char and append to numerator
-        }
-    }
+	wchar_t *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically append to with append_str
+	for (int i = 0; i < wcslen(num_as_str); i++) {
+		if (num_as_str[i] != DEC_PLACE) { // if the char is not a decimal place
+			append_str(&numerator_str, chr_to_str(num_as_str[i])); // create string from char and append to numerator
+		}
+	}
 
-    // if numerator is still empty i.e. there was no decimal place, set the numerator to num_as_str;
-    if (wcslen(numerator_str) == 0) {
-        numerator_str = num_as_str;
-    }
+	// if numerator is still empty i.e. there was no decimal place, set the numerator to num_as_str;
+	if (wcslen(numerator_str) == 0) {
+		numerator_str = num_as_str;
+	}
 
-    wchar_t *denominator_str = str_to_wcs(mpz_get_str(NULL, 10, denominator)); // create a string of the denominator
+	wchar_t *denominator_str = str_to_wcs(mpz_get_str(NULL, 10, denominator)); // create a string of the denominator
 
-    // create a full string representation of the fraction to generate a mpq_t from
-    wchar_t *fraction_str = malloc((wcslen(numerator_str) + wcslen(denominator_str) + 2) * sizeof(wchar_t));
-    wcscat(fraction_str, numerator_str);
-    wcscat(fraction_str, L"/");
-    wcscat(fraction_str, denominator_str);
+	// create a full string representation of the fraction to generate a mpq_t from
+	wchar_t *fraction_str = malloc((wcslen(numerator_str) + wcslen(denominator_str) + 2) * sizeof(wchar_t));
+	wcscat(fraction_str, numerator_str);
+	wcscat(fraction_str, L"/");
+	wcscat(fraction_str, denominator_str);
 
-    mpq_set_str(value->number, wcs_to_str(fraction_str), 10); // create multi-precision rational
-    mpq_canonicalize(value->number); // simplify
+	mpq_set_str(value->number, wcs_to_str(fraction_str), 10); // create multi-precision rational
+	mpq_canonicalize(value->number); // simplify
 
-    // free memory
-    free(numerator_str);
-    free(denominator_str);
+	// free memory
+	free(numerator_str);
+	free(denominator_str);
 
-    return value;
+	return value;
 }
 
 // functions to create new CyValues from a C type
 
 #define init_func(type, arg, arg_type) \
-    CyValue *cy_value_new_##arg(arg_type arg) { \
+    CyValue *cy_value_new_##arg(arg_type arg) {    \
         CyValue *value = cy_value_new_empty(type); \
-        value->other = arg; \
-        return value; \
+        value->other = arg;                        \
+        return value;                              \
     }
 
 init_func(StringType, str, wchar_t *);
+
 init_func(FunctionType, func, wchar_t *);
+
 init_func(ListType, list, CyValueList *);
 
 // functions to check if a CyValue has a certain type
 
 #define type_check_func(short_type, type_from_enum) \
-    bool cy_value_is_##short_type(CyValue value) { \
+    bool cy_value_is_##short_type(CyValue value) {          \
         return value.type == type_from_enum ? true : false; \
     }
 
 type_check_func(num, NumberType);
+
 type_check_func(str, StringType);
+
 type_check_func(list, ListType);
+
 type_check_func(func, FunctionType);
+
+CyValue *freeable(CyValue *value) {
+	value->can_free = true;
+	return value;
+}
+
+// free all memory associated with a CyValue
+void free_cy_value(CyValue *value) {
+	if (value->type == ListType) {
+		free_cy_value_list(value->other);
+	} else if (value->type == StringType) {
+		free(value->other);
+	}
+	free(value);
+}
 
 // returns a string representation of a cyxal value
 wchar_t *stringify_cy_value(CyValue value) {
-    switch (value.type) {
-        case NumberType:
-            return str_to_wcs(mpq_get_str(NULL, 10, value.number)); // use a builtin gmp function to stringify into base 10
-        case StringType: {
-            return value.other;
-        }
-        case ListType: {
-            CyValueList *list = (CyValueList *)value.other; // variable for the list case to a (CyValueList *) from (void *)
-            if (list->size == 0) {
-                return L"[]";
-            }
-            wchar_t *str = malloc(0);
-            append_str(&str, L"[ ");
-            for (int i = 0; i < list->size; i++) {
-                wchar_t *item;
-                bool should_free = false;
-                if (cy_value_is_str(list->values[i])) {
-                    item = malloc(0);
-                    append_str(&item, L"\"");
-                    append_str(&item, list->values[i].other);
-                    append_str(&item, L"\"");
-                    should_free = true;
-                } else {
-                    item = stringify_cy_value(list->values[i]); // stringify the item to append
-                }
-                append_str(&str, item);
-                append_str(&str, L", ");
-                if (should_free) {
-                    free(item);
-                }
-            }
-            wcscpy(str + wcslen(str) - 2, L" ]"); // replace the last ", " with " ]"
-            return str;
-        }
-        case FunctionType:
-            return L"<lambda>";
-        case NullType:
-            return L"<null>";
-    }
+	switch (value.type) {
+		case NumberType:
+			return str_to_wcs(
+				mpq_get_str(NULL, 10, value.number)); // use a builtin gmp function to stringify into base 10
+		case StringType:
+			return value.other;
+		case ListType: {
+			CyValueList *list = (CyValueList *)value.other; // variable for the list case to a (CyValueList *) from (void *)
+			if (list->size == 0) {
+				return L"[]";
+			}
+			wchar_t *str = malloc(0);
+			append_str(&str, L"[ ");
+			for (int i = 0; i < list->size; i++) {
+				wchar_t *item;
+				bool should_free = false;
+				if (cy_value_is_str(list->values[i])) {
+					item = malloc(0);
+					append_str(&item, L"\"");
+					append_str(&item, list->values[i].other);
+					append_str(&item, L"\"");
+					should_free = true;
+				} else {
+					item = stringify_cy_value(list->values[i]); // stringify the item to append
+				}
+				append_str(&str, item);
+				append_str(&str, L", ");
+				if (should_free) {
+					free(item);
+				}
+			}
+			wcscpy(str + wcslen(str) - 2, L" ]"); // replace the last ", " with " ]"
+			return str;
+		}
+		case FunctionType:
+			return L"<function>";
+	}
 }
 
 // creates an empty CyValueList; memory isn't allocated although pointers are initialised
-CyValueList *empty_cy_value_list() {
-    CyValueList *list = malloc(sizeof(CyValueList));
-    list->values = calloc(0, 0);
-    list->size = 0;
-    return list;
+CyValueList *empty_cy_value_list(void) {
+	CyValueList *list = malloc(sizeof(CyValueList));
+	list->values = calloc(0, 0);
+	list->size = 0;
+	return list;
 }
 
-// appends one cyxal value to a cyxal list
-void push_cy_value(CyValueList *list, CyValue value) {
-    list->values = realloc(list->values, (list->size + 1) * sizeof(value)); // realloc memory for the new item
-    list->values[list->size++] = value; // set the last slot of the array to the new item and increment size afterwards
+// free all memory associated with a CyValueList
+void free_cy_value_list(CyValueList *list) {
+	free(list->values);
+	free(list);
+}
+
+// appends one cyxal value to a CyValueList
+void push_cy_value(CyValueList *list, CyValue *value) {
+	list->values = realloc(list->values, (list->size + 1) * sizeof(CyValue)); // realloc memory for the new item
+	list->values[list->size++] = *value; // set the last slot of the array to the new item and increment size afterwards
+	if (value->can_free) {
+		free_cy_value(value);
+	}
 }
 
 // remove the last item of a CyValueList list and return it
 CyValue *pop_cy_value(CyValueList *list) {
-    CyValue *last_value = malloc(sizeof(CyValue));
-    *last_value = list->values[list->size - 1];
-    list->values = realloc(list->values, (--list->size) * sizeof(CyValue));
-    return last_value;
+	CyValue *last_value = malloc(sizeof(CyValue));
+	*last_value = list->values[list->size - 1];
+	list->values = realloc(list->values, (--list->size) * sizeof(CyValue));
+	return last_value;
+}
+
+bool cy_value_eq(CyValue lhs, CyValue rhs) {
+	if (lhs.type == NumberType && rhs.type == NumberType) {
+		return mpq_equal(lhs.number, rhs.number) ? true : false;
+	} else if (lhs.type == StringType && rhs.type == StringType) {
+		return wcscmp(lhs.other, rhs.other) == 0 ? true : false;
+	} else if (lhs.type == ListType && rhs.type == ListType) {
+		CyValueList *lhs_as_list = (CyValueList *)lhs.other;
+		CyValueList *rhs_as_list = (CyValueList *)rhs.other;
+		if (lhs_as_list->size == rhs_as_list->size) {
+			for (int i = 0; i < lhs_as_list->size; i++) {
+				if (!cy_value_eq(lhs_as_list->values[i], rhs_as_list->values[i])) {
+					return false;
+				}
+			}
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
 }

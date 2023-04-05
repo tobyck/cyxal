@@ -1,1 +1,0 @@
-Note: content in the folder is managed automatically by the makefile. The executables may or may not work on your computer even if they were compiled on the same OS. To use Cyxal please follow the usage instructions in README.md.
