@@ -172,7 +172,7 @@ CyValueList *empty_cy_value_list(void) {
 
 // free all memory associated with a CyValueList
 void free_cy_value_list(CyValueList *list) {
-	free(list->values);
+	free_cy_value(list->values);
 	free(list);
 }
 

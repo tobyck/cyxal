@@ -16,6 +16,7 @@ int main() {
 	add(ctx);
 	cy_print(ctx);
 	printf("2 + 3 = %ls\n", ctx->output);
+	free_cy_context(ctx);
 
 	return 0;
 }

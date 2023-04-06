@@ -13,7 +13,15 @@ CyContext *new_cy_context(CyValueList *args) {
 }
 
 void free_cy_context(CyContext *ctx) {
-
+	free_cy_value_list(ctx->args);
+	for (int i = 0; i < ctx->stacks->size; i++) {
+		free_cy_value_list(ctx->stacks->stacks[i]);
+	}
+	free(ctx->stacks->stacks);
+	free(ctx->stacks);
+	free(ctx->output);
+	free(ctx->error);
+	free(ctx);
 }
 
 StackList *empty_stack_list(void) {
