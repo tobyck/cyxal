@@ -6,13 +6,16 @@ OUTPUT_FILE = $(OUT_DIR)/cyxal
 build: src
 	$(CC) -Wall -lgmp src/*.c src/**/*.c -o $(OUTPUT_FILE) $(FLAGS)
 
-run: $(OUTPUT_FILE)
+run: src
 	make build
 	./$(OUTPUT_FILE)
 
 debug:
 	make build FLAGS=-g
 	lldb $(OUTPUT_FILE)
+
+leak-check: $(OUTPUT_FILE)
+	valgrind --leak-check=full $(OUTPUT_FILE)
 
 clean:
 	find build/*/* ! -name '*.md' -delete

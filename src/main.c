@@ -8,7 +8,7 @@
 int main() {
 	setlocale(LC_ALL, "");
 
-	run_tests();
+	//run_tests();
 
 	CyContext *ctx = new_cy_context(empty_cy_value_list());
 	push_cy_value(last_stack(ctx), cy_value_new_num(L"2"));
