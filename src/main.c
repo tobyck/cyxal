@@ -11,11 +11,6 @@ int main() {
 	//run_tests();
 
 	CyContext *ctx = new_cy_context(empty_cy_value_list());
-	push_cy_value(last_stack(ctx), cy_value_new_num(L"2"));
-	push_cy_value(last_stack(ctx), cy_value_new_num(L"3"));
-	add(ctx);
-	cy_print(ctx);
-	printf("2 + 3 = %ls\n", ctx->output);
 	free_cy_context(ctx);
 
 	return 0;
