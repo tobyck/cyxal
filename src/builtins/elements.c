@@ -22,12 +22,12 @@ element(add) {
 	CyValue *ret;
 
 	if (cy_value_is_num(*lhs) && cy_value_is_num(*rhs)) {
-		ret = cy_value_new_num(NULL);
+		ret = cy_value_new_num(NULL); // empty CyValue number
 		mpq_add(ret->number, lhs->number, rhs->number);
 	} else if (cy_value_is_str(*lhs) || cy_value_is_str(*rhs)) {
 		wchar_t *str_on_heap = malloc(0);
-		append_str(&str_on_heap, stringify_cy_value(*lhs));
-		append_str(&str_on_heap, stringify_cy_value(*rhs));
+		append_str_and_free(&str_on_heap, stringify_cy_value(lhs));
+		append_str_and_free(&str_on_heap, stringify_cy_value(rhs));
 		ret = cy_value_new_str(str_on_heap);
 	} else {
 		wchar_t err_msg[65];
@@ -39,13 +39,16 @@ element(add) {
 		return;
 	}
 
-	push_cy_value(last_stack(ctx), ret);
+	free_cy_value(lhs);
+	free_cy_value(rhs);
+
+	push_cy_value(last_stack(ctx->stacks), ret);
 }
 
 element(vectorising_add) {
 	CyElement el = {NULL, add, 2, 1};
 	CyValueList args = pop_args(ctx, el.arity_in);
-	push_cy_value(last_stack(ctx), vectorise(ctx, el, args));
+	push_cy_value(last_stack(ctx->stacks), vectorise(ctx, el, args));
 }
 
 /*
@@ -72,13 +75,15 @@ element(halve) {
 		return;
 	}
 
-	push_cy_value(last_stack(ctx), ret);
+	free_cy_value(lhs);
+
+	push_cy_value(last_stack(ctx->stacks), ret);
 }
 
 element(vectorising_halve) {
 	CyElement el = {NULL, halve, 1, 1};
 	CyValueList args = pop_args(ctx, el.arity_in);
-	push_cy_value(last_stack(ctx), vectorise(ctx, el, args));
+	push_cy_value(last_stack(ctx->stacks), vectorise(ctx, el, args));
 }
 
 /*
@@ -89,7 +94,7 @@ element(vectorising_halve) {
  * */
 
 element(alphabet) {
-	push_cy_value(last_stack(ctx), freeable(cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz")));
+	push_cy_value(last_stack(ctx->stacks), cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz"));
 }
 
 /*
@@ -100,7 +105,9 @@ element(alphabet) {
  * */
 
 element(cy_print) {
-	append_str(&ctx->output, stringify_cy_value(*pop_arg(ctx)));
+	CyValue *value = pop_arg(ctx);
+	append_str_and_free(&ctx->output, stringify_cy_value(value));
+	free_cy_value(value);
 }
 
 // function to create an empty CyElements list (you've probably seen this code at least a few times before around the place)

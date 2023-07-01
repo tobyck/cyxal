@@ -15,14 +15,6 @@ typedef enum {
 
 extern wchar_t *stringify_cy_type(CyType type);
 
-/*
- * the cyxal value struct is able to store any type available in cyxal - numbers
- * are stored in gmp's arbitrary precision rational type, strings are stored in
- * the void pointer field (cast to char pointer first), functions are stored as cyxal
- * source code which is evaluated as needed, and lists are also stored where strings are,
- * but as a pointer to a CyValueList.
- * */
-
 typedef struct {
 	CyType type;
 	mpq_t number;
@@ -35,7 +27,7 @@ typedef struct {
 #define init_func_dec(type) CyValue *cy_value_new_##type // macro for CyValue initialisation function declaration
 
 extern init_func_dec(empty)(CyType type);
-extern init_func_dec(num)(wchar_t *new_str);
+extern init_func_dec(num)(wchar_t *num_as_str);
 extern init_func_dec(str)(wchar_t *str);
 extern init_func_dec(func)(wchar_t *src);
 
@@ -52,12 +44,12 @@ extern bool cy_value_is_func(CyValue value);
 
 // function to stringify a CyValue to be printed
 
-extern wchar_t *stringify_cy_value(CyValue value);
+extern wchar_t *stringify_cy_value(CyValue *value);
 
 // struct and functions for a lists of CyValues
 
 typedef struct {
-	CyValue *values;
+	CyValue **values;
 	size_t size;
 } CyValueList;
 

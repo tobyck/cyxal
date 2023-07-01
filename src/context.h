@@ -9,7 +9,8 @@ typedef struct {
 } StackList;
 
 typedef struct {
-	CyValueList *args;
+	CyValueList *args; // fixed array of program arguments
+	int arg_index; // index of arg to pop next (if stack is empty)
 	StackList *stacks;
 	wchar_t *output;
 	wchar_t *error;
@@ -21,9 +22,10 @@ extern void free_cy_context(CyContext *ctx);
 extern void cy_error(CyContext *ctx, wchar_t *message);
 
 extern StackList *empty_stack_list(void);
-extern void push_empty_stack(CyContext *ctx);
-extern CyValueList *last_stack(CyContext *ctx);
-extern CyValueList *pop_stack(CyContext *ctx);
+extern void free_stack_list(StackList *list);
+extern void push_empty_stack(StackList *ctx);
+extern CyValueList *last_stack(StackList *stacks);
+extern CyValueList *pop_stack(StackList *stacks);
 extern CyValue *pop_arg(CyContext *ctx);
 extern CyValueList pop_args(CyContext *ctx, size_t n);
 

@@ -1,21 +1,30 @@
-CC = clang
+CC = clang # compiler
+DB = lldb # debugger
 OUT_DIR = build/debug
+OUT_FILE = $(OUT_DIR)/cyxal
+LEAKS_FLAGS = --atExit # flags for `leaks` command
 
-OUTPUT_FILE = $(OUT_DIR)/cyxal
+# adjust flags for `leaks` if trying to find source of memory leaks
+ifeq ($(MallocStackLogging),1)
+ifneq ($(wildcard $(OUT_FILE).dSYM),"")
+	LEAKS_FLAGS = --atExit --list --quiet
+endif
+endif
 
 build: src
-	$(CC) -Wall -lgmp src/*.c src/**/*.c -o $(OUTPUT_FILE) $(FLAGS)
+	$(CC) -Wall -lgmp src/*.c src/**/*.c -o $(OUT_FILE) $(FLAGS)
 
-run: src
-	make build
-	./$(OUTPUT_FILE)
+debug-build:
+	make build FLAGS="-g"
 
-debug:
-	make build FLAGS=-g
-	lldb $(OUTPUT_FILE)
+run: $(OUT_FILE)
+	./$(OUT_FILE)
 
-leak-check: $(OUTPUT_FILE)
-	valgrind --leak-check=full $(OUTPUT_FILE)
+debug: $(OUT_FILE)
+	$(DB) $(OUT_FILE)
+
+leak-check-mac: $(OUT_FILE)
+	leaks $(LEAKS_FLAGS) $(FLAGS) -- ./$(OUT_FILE)
 
 clean:
 	find build/*/* ! -name '*.md' -delete

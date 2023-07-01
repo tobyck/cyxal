@@ -31,11 +31,11 @@ wchar_t *stringify_element_test(ElementTest test) {
 	for (int i = 0; i < test.test_amt; ++i) {
 		append_str(&ret, L"  ");
 		for (int j = 0; j < test.element.arity_in; ++j) {
-			append_str(&ret, stringify_cy_value(*test.tests[i].args[j]));
+			append_str(&ret, stringify_cy_value(test.tests[i].args[j]));
 		}
 		append_str(&ret, L" -> ");
 		for (int j = 0; j < test.element.arity_out; ++j) {
-			append_str(&ret, stringify_cy_value(*test.tests[i].output[j]));
+			append_str(&ret, stringify_cy_value(test.tests[i].output[j]));
 		}
 		append_str(&ret, L"\n");
 	}

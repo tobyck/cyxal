@@ -14,7 +14,7 @@ void test_cy_value(void) {
 	push_cy_value(list3->other, cy_value_new_str(L"123"));
 	push_cy_value(list3->other, list2);
 
-	printf("%ls\n", stringify_cy_value(*list3));
+	printf("%ls\n", stringify_cy_value(list3));
 
 	free_cy_value(list3);
 }

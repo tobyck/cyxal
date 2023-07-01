@@ -23,18 +23,20 @@ wchar_t *stringify_cy_type(CyType type) {
 // creates a new CyValue with just the provided type from the enum in cy_value.h
 CyValue *cy_value_new_empty(CyType type) {
 	CyValue *value = malloc(sizeof(CyValue)); // allocate just enough memory
-	value->type = type; // set the type and nothing else
+	value->type = type;
+	value->can_free = false;
 	return value;
 }
 
 // create a new CyValue with NumberType given a string representation of a number
 CyValue *cy_value_new_num(wchar_t *num_as_str) {
 	CyValue *value = cy_value_new_empty(NumberType);
+
 	mpq_init(value->number);
 
-	if (num_as_str == NULL) return value;
+	if (num_as_str == NULL) return value; // if no string was provided, return the empty CyValue
 
-	mpz_t denominator; // arbitrary-precision integer
+	mpz_t denominator; // arbitrary-precision integer to store the denominator
 	mpz_init(denominator); // initialise
 	mpz_set_ui(denominator, 1); // set to 1
 	if (contains(num_as_str, DEC_PLACE)) { // if there's a decimal point in the number
@@ -46,10 +48,11 @@ CyValue *cy_value_new_num(wchar_t *num_as_str) {
 		}
 	}
 
-	wchar_t *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically append to with append_str
+	wchar_t *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically appended to with append_str
 	for (int i = 0; i < wcslen(num_as_str); i++) {
 		if (num_as_str[i] != DEC_PLACE) { // if the char is not a decimal place
-			append_str(&numerator_str, chr_to_str(num_as_str[i])); // create string from char and append to numerator
+			wchar_t *chr_as_str = chr_to_str(num_as_str[i]); // store it as a wide char string
+			append_str_and_free(&numerator_str, chr_as_str); // then append to numerator_str
 		}
 	}
 
@@ -58,7 +61,12 @@ CyValue *cy_value_new_num(wchar_t *num_as_str) {
 		numerator_str = num_as_str;
 	}
 
-	wchar_t *denominator_str = str_to_wcs(mpz_get_str(NULL, 10, denominator)); // create a string of the denominator
+	char *normal_str = mpz_get_str(
+		NULL, 10, denominator
+	); // stringify the denominator (mpz_t) and store in a normal string
+	wchar_t *denominator_str = str_to_wcs(normal_str); // then convert to wide char string
+	free(normal_str);
+	mpz_clear(denominator);
 
 	// create a full string representation of the fraction to generate a mpq_t from
 	wchar_t *fraction_str = malloc((wcslen(numerator_str) + wcslen(denominator_str) + 2) * sizeof(wchar_t));
@@ -66,26 +74,31 @@ CyValue *cy_value_new_num(wchar_t *num_as_str) {
 	wcscat(fraction_str, L"/");
 	wcscat(fraction_str, denominator_str);
 
-	mpq_set_str(value->number, wcs_to_str(fraction_str), 10); // create multi-precision rational
-	mpq_canonicalize(value->number); // simplify
-
-	// free memory
 	free(numerator_str);
 	free(denominator_str);
+
+	char *fraction_as_normal_str = wcs_to_str(fraction_str);
+	free(fraction_str);
+	mpq_set_str(value->number, fraction_as_normal_str, 10);
+	free(fraction_as_normal_str);
 
 	return value;
 }
 
-// functions to create new CyValues from a C type
+CyValue *cy_value_new_str(wchar_t *str) {
+	CyValue *value = cy_value_new_empty(StringType);
+	value->other = malloc((wcslen(str) + 1) * sizeof(wchar_t));
+	wcscpy(value->other, str);
+	return value;
+}
 
+// macro to create a function that makes a CyValue with a certain type and `other` field
 #define init_func(type, arg, arg_type) \
     CyValue *cy_value_new_##arg(arg_type arg) {    \
         CyValue *value = cy_value_new_empty(type); \
         value->other = arg;                        \
         return value;                              \
     }
-
-init_func(StringType, str, wchar_t *);
 
 init_func(FunctionType, func, wchar_t *);
 
@@ -106,60 +119,73 @@ type_check_func(list, ListType);
 
 type_check_func(func, FunctionType);
 
-CyValue *freeable(CyValue *value) {
-	value->can_free = true;
-	return value;
-}
-
 // free all memory associated with a CyValue
 void free_cy_value(CyValue *value) {
-	if (value->type == ListType) {
-		free_cy_value_list(value->other);
+	if (value->type == NumberType) {
+		mpq_clear(value->number);
 	} else if (value->type == StringType) {
 		free(value->other);
+	} else if (value->type == ListType) {
+		free_cy_value_list(value->other);
 	}
+
 	free(value);
 }
 
-// returns a string representation of a cyxal value
-wchar_t *stringify_cy_value(CyValue value) {
-	switch (value.type) {
-		case NumberType:
-			return str_to_wcs(
-				mpq_get_str(NULL, 10, value.number)); // use a builtin gmp function to stringify into base 10
-		case StringType:
-			return value.other;
-		case ListType: {
-			CyValueList *list = (CyValueList *)value.other; // variable for the list case to a (CyValueList *) from (void *)
-			if (list->size == 0) {
-				return L"[]";
-			}
-			wchar_t *str = malloc(0);
-			append_str(&str, L"[ ");
-			for (int i = 0; i < list->size; i++) {
-				wchar_t *item;
-				bool should_free = false;
-				if (cy_value_is_str(list->values[i])) {
-					item = malloc(0);
-					append_str(&item, L"\"");
-					append_str(&item, list->values[i].other);
-					append_str(&item, L"\"");
-					should_free = true;
-				} else {
-					item = stringify_cy_value(list->values[i]); // stringify the item to append
-				}
-				append_str(&str, item);
-				append_str(&str, L", ");
-				if (should_free) {
-					free(item);
-				}
-			}
-			wcscpy(str + wcslen(str) - 2, L" ]"); // replace the last ", " with " ]"
-			return str;
+// returns a string representation of a CyValue
+wchar_t *stringify_cy_value(CyValue *value) {
+	wchar_t *ret = malloc(0);
+
+	if (value->type == NumberType) {
+		char *normal_str = mpq_get_str(
+			NULL, 10, value->number
+		); // use a builtin gmp function to stringify into base 10
+		free(ret);
+		ret = str_to_wcs(normal_str);
+		free(normal_str);
+	} else if (value->type == StringType) {
+		ret = value->other;
+	} else if (value->type == ListType) {
+		CyValueList *list = (CyValueList *)value->other; // variable for the list case to a (CyValueList *) from (void *)
+		// if the list is empty, return "[]"
+		if (list->size == 0) {
+			return L"[]";
 		}
-		case FunctionType:
-			return L"<function>";
+		append_str(&ret, L"[ "); // append the opening bracket
+		for (int i = 0; i < list->size; i++) { // for each item
+			wchar_t *item; // string to store the item to append
+			bool should_free = false; // whether `item` is heap allocated
+			if (cy_value_is_str(*list->values[i])) { // if the item is a string
+				// append the string with quotes around it
+				item = malloc(0);
+				append_str(&item, L"\"");
+				append_str(&item, list->values[i]->other);
+				append_str(&item, L"\"");
+				should_free = true;
+			} else {
+				// otherwise stringify the item normally
+				item = stringify_cy_value(list->values[i]); // stringify the item to append
+			}
+			// add item to final string and append comma
+			append_str(&ret, item);
+			append_str(&ret, L", ");
+			// free the item if it was heap allocated
+			if (should_free) {
+				free(item);
+			}
+		}
+		wcscpy(ret + wcslen(ret) - 2, L" ]"); // replace the last ", " with " ]"
+	} else if (value->type == FunctionType) {
+		ret = L"<function>";
+	} else {
+		fprintf(stderr, "stringify_cy_value: unknown type %d\n", value->type);
 	}
+
+	if (value->can_free) {
+		free_cy_value(value);
+	}
+
+	return ret;
 }
 
 // creates an empty CyValueList; memory isn't allocated although pointers are initialised
@@ -172,17 +198,22 @@ CyValueList *empty_cy_value_list(void) {
 
 // free all memory associated with a CyValueList
 void free_cy_value_list(CyValueList *list) {
+	// free all values in the list
 	for (int i = 0; i < list->size; i++) {
-		free_cy_value(&list->values[i]);
+		free_cy_value(list->values[i]);
 	}
+
 	free(list->values);
+
+	// free the struct itself
 	free(list);
 }
 
 // appends one cyxal value to a CyValueList
 void push_cy_value(CyValueList *list, CyValue *value) {
 	list->values = realloc(list->values, (list->size + 1) * sizeof(CyValue)); // realloc memory for the new item
-	list->values[list->size++] = *value; // set the last slot of the array to the new item and increment size afterwards
+	list->values[list->size++] = value; // set the last slot of the array to the new item and increment size afterwards
+
 	if (value->can_free) {
 		free_cy_value(value);
 	}
@@ -190,12 +221,14 @@ void push_cy_value(CyValueList *list, CyValue *value) {
 
 // remove the last item of a CyValueList list and return it
 CyValue *pop_cy_value(CyValueList *list) {
-	CyValue *last_value = malloc(sizeof(CyValue));
-	*last_value = list->values[list->size - 1];
+	// extract the last value from the list (this *seems* to not be freed by the next line but I'm not sure why tbh)
+	CyValue *last_value = list->values[list->size - 1];
+	// deallocate the last slot of the array and decrement size afterwards
 	list->values = realloc(list->values, (--list->size) * sizeof(CyValue));
 	return last_value;
 }
 
+// checks if two CyValues are equal
 bool cy_value_eq(CyValue lhs, CyValue rhs) {
 	if (lhs.type == NumberType && rhs.type == NumberType) {
 		return mpq_equal(lhs.number, rhs.number) ? true : false;
@@ -206,7 +239,7 @@ bool cy_value_eq(CyValue lhs, CyValue rhs) {
 		CyValueList *rhs_as_list = (CyValueList *)rhs.other;
 		if (lhs_as_list->size == rhs_as_list->size) {
 			for (int i = 0; i < lhs_as_list->size; i++) {
-				if (!cy_value_eq(lhs_as_list->values[i], rhs_as_list->values[i])) {
+				if (!cy_value_eq(*lhs_as_list->values[i], *rhs_as_list->values[i])) {
 					return false;
 				}
 			}

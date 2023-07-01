@@ -2,23 +2,22 @@
 #include <wchar.h>
 #include "context.h"
 
+// make a new context with the given arguments
 CyContext *new_cy_context(CyValueList *args) {
 	CyContext *ctx = malloc(sizeof(CyContext));
 	ctx->args = args;
+	ctx->arg_index = 0;
 	ctx->stacks = empty_stack_list();
-	push_empty_stack(ctx);
+	push_empty_stack(ctx->stacks);
 	ctx->output = malloc(0);
 	ctx->error = malloc(0);
 	return ctx;
 }
 
+// free a CyContext and everything in it
 void free_cy_context(CyContext *ctx) {
 	free_cy_value_list(ctx->args);
-	for (int i = 0; i < ctx->stacks->size; i++) {
-		free_cy_value_list(ctx->stacks->stacks[i]);
-	}
-	free(ctx->stacks->stacks);
-	free(ctx->stacks);
+	free_stack_list(ctx->stacks);
 	free(ctx->output);
 	free(ctx->error);
 	free(ctx);
@@ -31,23 +30,45 @@ StackList *empty_stack_list(void) {
 	return list;
 }
 
-void push_empty_stack(CyContext *ctx) {
-	ctx->stacks->stacks = realloc(ctx->stacks->stacks, (ctx->stacks->size + 1) * sizeof(CyValueList));
-	ctx->stacks->stacks[ctx->stacks->size++] = empty_cy_value_list();
+void push_empty_stack(StackList *stacks) {
+	stacks->stacks = realloc(stacks->stacks, (stacks->size + 1) * sizeof(CyValueList));
+	stacks->stacks[stacks->size++] = empty_cy_value_list();
 }
 
-CyValueList *last_stack(CyContext *ctx) {
-	return ctx->stacks->stacks[ctx->stacks->size - 1];
+CyValueList *last_stack(StackList *stacks) {
+	return stacks->stacks[stacks->size - 1];
 }
 
-CyValueList *pop_stack(CyContext *ctx) {
-	CyValueList *ret = last_stack(ctx);
-	ctx->stacks->stacks = realloc(ctx->stacks->stacks, (--ctx->stacks->size) * sizeof(CyValueList));
+void free_stack_list(StackList *list) {
+	// free each stack
+	for (int i = 0; i < list->size; i++) {
+		// free the stack
+		free_cy_value_list(list->stacks[i]);
+	}
+
+	free(list->stacks);
+
+	// free the struct
+	free(list);
+}
+
+CyValueList *pop_stack(StackList *stacks) {
+	CyValueList *ret = last_stack(stacks);
+	stacks->stacks = realloc(stacks->stacks, (--stacks->size) * sizeof(CyValueList));
 	return ret;
 }
 
 CyValue *pop_arg(CyContext *ctx) {
-	return pop_cy_value(last_stack(ctx));
+	if (last_stack(ctx->stacks)->size > 0) {
+		return pop_cy_value(last_stack(ctx->stacks));
+	} else if (ctx->args->size > 0) {
+		CyValue *ret = ctx->args->values[ctx->arg_index];
+		ctx->arg_index++;
+		ctx->arg_index %= ctx->args->size;
+		return ret;
+	} else {
+		return cy_value_new_num(L"0");
+	}
 }
 
 CyValueList pop_args(CyContext *ctx, size_t n) {
