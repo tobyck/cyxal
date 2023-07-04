@@ -49,7 +49,7 @@ ElementTest new_element_test(wchar_t *symbol, size_t test_amt, ...) {
 	va_list args;
 	va_start(args, test_amt);
 	TestCase test_cases[test_amt];
-	for (int i = 0; i < test_amt; i++) {
+	for (int i = 0; i < test_amt; ++i) {
 		test_cases[i] = va_arg(args, TestCase);
 	}
 	va_end(args);

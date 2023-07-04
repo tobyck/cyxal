@@ -7,7 +7,7 @@
 CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList args) {
 	bool no_lists = true;
 
-	for (int i = 0; i < element.arity_in; i++) {
+	for (int i = 0; i < element.arity_in; ++i) {
 		if (args.values[i]->type == ListType) {
 			no_lists = false;
 		}
@@ -15,7 +15,7 @@ CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList args) {
 
 	if (no_lists) {
 		push_empty_stack(ctx->stacks);
-		for (int i = 0; i < element.arity_in; i++) {
+		for (int i = 0; i < element.arity_in; ++i) {
 			push_cy_value(last_stack(ctx->stacks), args.values[i]);
 		}
 		element.func(ctx);
@@ -26,19 +26,19 @@ CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList args) {
 
 	size_t longest_arg_length = 0; // set the longest to 0 initially
 
-	for (int i = 0; i < element.arity_in; i++) { // for each arg
+	for (int i = 0; i < element.arity_in; ++i) { // for each arg
 		// if it's longer than the longest found so far
 		if (args.values[i]->type == ListType && ((CyValueList *)args.values[i]->other)->size > longest_arg_length) {
 			longest_arg_length = ((CyValueList *)args.values[i]->other)->size; // set it to the new longest
 		}
 	}
 
-	for (int i = 0; i < element.arity_in; i++) {
+	for (int i = 0; i < element.arity_in; ++i) {
 		// if the arg isn't a list turn it into a list full of the value
 		if (args.values[i]->type != ListType) {
 			CyValue *new_list = cy_value_new_list(empty_cy_value_list());
 			// fill it with the value to it's the length of the longest
-			for (int _ = 0; _ < longest_arg_length; _++) {
+			for (int _ = 0; _ < longest_arg_length; ++_) {
 				push_cy_value(new_list->other, args.values[i]);
 			}
 			args.values[i] = new_list;
@@ -54,9 +54,9 @@ CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList args) {
 
 	CyValueList *result = empty_cy_value_list();
 
-	for (int i = 0; i < longest_arg_length; i++) {
+	for (int i = 0; i < longest_arg_length; ++i) {
 		push_empty_stack(ctx->stacks);
-		for (int j = 0; j < element.arity_in; j++) {
+		for (int j = 0; j < element.arity_in; ++j) {
 			push_cy_value(last_stack(ctx->stacks), ((CyValueList *)args.values[j]->other)->values[i]);
 		}
 		element.func(ctx);
@@ -89,9 +89,9 @@ wchar_t *append_str_and_free(wchar_t **dest, wchar_t *src) {
 }
 
 // create a null-terminated string from a char
-wchar_t *chr_to_str(wchar_t chr) {
-	wchar_t *str = malloc(2 * sizeof(wchar_t));
-	swprintf(str, 2, L"%lc", chr);
+wchar_t *chr_to_wcs(wchar_t chr) {
+	wchar_t *str = calloc(2, sizeof(wchar_t));
+	str[0] = chr;
 	return str;
 }
 

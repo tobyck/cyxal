@@ -1,5 +1,5 @@
-#ifndef CYXAL_TOKENISER_H
-#define CYXAL_TOKENISER_H
+#ifndef CYXAL_LEXER_H
+#define CYXAL_LEXER_H
 
 #include <stdbool.h>
 #include <wchar.h>
@@ -25,21 +25,26 @@ typedef struct {
 	wchar_t *src;
 } CyToken;
 
-// token array struct
+// methods for CyTokens
+
+extern CyToken new_cy_token(CyTokenType type, wchar_t *src);
+extern wchar_t *stringify_cy_token(CyToken token);
+
+// token list struct
 
 typedef struct {
-	CyToken *tokens; // pointer to the start of the array - the first token
-	size_t size; // the current size of the array
-} CyTokenArray;
+	CyToken *tokens; // pointer to the start of the list - the first token
+	size_t size; // the current size of the list
+} CyTokenList;
 
-// methods for CyTokenArrays and CyTokens
+// methods for CyTokenLists
 
-extern CyTokenArray *new_cy_token_array(void);
-extern void push_cy_token(CyTokenArray *array, CyToken token);
-extern wchar_t *stringify_cy_token(CyToken token);
+extern CyTokenList *new_cy_token_list(void);
+extern void push_cy_token(CyTokenList *list, CyToken token);
+extern void free_cy_token_list(CyTokenList *list);
 
 // the lex function
 
-extern CyTokenArray *lex(wchar_t *code);
+extern CyTokenList *lex(wchar_t *code);
 
-#endif // CYXAL_TOKENISER_H
+#endif // CYXAL_LEXER_H

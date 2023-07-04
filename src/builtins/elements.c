@@ -126,7 +126,7 @@ void add_element(CyElementList *list, CyElement element) {
 
 // checks if an element is in a list of elements (used in the lexer)
 bool has_element(CyElementList *list, wchar_t *symbol) {
-	for (int i = 0; i < list->size; i++) {
+	for (int i = 0; i < list->size; ++i) {
 		if (wcscmp(list->elements[i].symbol, symbol) == 0) {
 			return true;
 		}
@@ -136,7 +136,7 @@ bool has_element(CyElementList *list, wchar_t *symbol) {
 
 // given a cyxal element (e.g. "+") return the corresponding function
 CyElementFunc func_for_element(CyElementList *list, wchar_t *symbol) {
-	for (int i = 0; i < list->size; i++) {
+	for (int i = 0; i < list->size; ++i) {
 		if (wcscmp(list->elements[i].symbol, symbol) == 0) {
 			return list->elements[i].func;
 		}
@@ -147,14 +147,14 @@ CyElementFunc func_for_element(CyElementList *list, wchar_t *symbol) {
 // gets an array of all the symbols for the elements
 wchar_t **elements_symbols(CyElementList *list) {
 	wchar_t **symbols = malloc(list->size * sizeof(wchar_t));
-	for (int i = 0; i < list->size; i++) {
+	for (int i = 0; i < list->size; ++i) {
 		symbols[i] = list->elements[i].symbol;
 	}
 	return symbols;
 }
 
 CyElement get_element(CyElementList *list, wchar_t *symbol) {
-	for (int i = 0; i < list->size; i++) {
+	for (int i = 0; i < list->size; ++i) {
 		if (wcscmp(list->elements[i].symbol, symbol) == 0) {
 			return list->elements[i];
 		}

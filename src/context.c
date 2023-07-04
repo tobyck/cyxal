@@ -41,7 +41,7 @@ CyValueList *last_stack(StackList *stacks) {
 
 void free_stack_list(StackList *list) {
 	// free each stack
-	for (int i = 0; i < list->size; i++) {
+	for (int i = 0; i < list->size; ++i) {
 		// free the stack
 		free_cy_value_list(list->stacks[i]);
 	}
@@ -73,7 +73,7 @@ CyValue *pop_arg(CyContext *ctx) {
 
 CyValueList pop_args(CyContext *ctx, size_t n) {
 	CyValue popped[n];
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; ++i) {
 		popped[i] = *pop_arg(ctx);
 	}
 	CyValueList *reversed = empty_cy_value_list();

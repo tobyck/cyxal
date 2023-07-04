@@ -1,5 +1,7 @@
 #include <locale.h>
 #include "../tests/run_tests.c"
+#include "parser/lexer.h"
+#include "stdlib.h"
 
 #include "context.h"
 #include "builtins/cy_value.h"
@@ -46,6 +48,27 @@ int main() {
 	cy_print(ctx);
 	printf("%ls\n", ctx->output);
 	free_cy_context(ctx);*/
+
+	/*wchar_t *str1 = malloc(4);
+	swprintf(str1, 4, L"abc");
+
+	wchar_t *str2 = malloc(0);
+	append_str_and_free(&str2, str1);
+
+	printf("%ls\n", str2);
+	free(str2);*/
+
+	/*CyTokenList *tokens = lex(L"`he\\`llo` `abc");
+
+	for (int i = 0; i < tokens->size; ++i) {
+		wchar_t *str = stringify_cy_token(tokens->tokens[i]);
+		printf("%ls\n", str);
+		free(str);
+	}
+
+	free_cy_token_list(tokens);*/
+
+	// test_lexer();
 
 	return 0;
 }

@@ -37,7 +37,7 @@ extern CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList args);
 extern bool contains(wchar_t *str, wchar_t chr);
 extern wchar_t *append_str(wchar_t **dest, wchar_t *src);
 extern wchar_t *append_str_and_free(wchar_t **dest, wchar_t *src);
-extern wchar_t *chr_to_str(wchar_t chr);
+extern wchar_t *chr_to_wcs(wchar_t chr);
 extern wchar_t *str_to_wcs(char *str);
 extern char *wcs_to_str(wchar_t *wcs);
 extern bool is_letter(wchar_t wcs);

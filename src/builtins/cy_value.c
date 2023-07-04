@@ -40,7 +40,7 @@ CyValue *cy_value_new_num(wchar_t *num_as_str) {
 	mpz_init(denominator); // initialise
 	mpz_set_ui(denominator, 1); // set to 1
 	if (contains(num_as_str, DEC_PLACE)) { // if there's a decimal point in the number
-		for (int i = 0; i < wcslen(num_as_str); i++) { // for each number in the range [0, strlen(num_as_str))
+		for (int i = 0; i < wcslen(num_as_str); ++i) { // for each number in the range [0, strlen(num_as_str))
 			if (num_as_str[wcslen(num_as_str) - 1 - i] == DEC_PLACE) { // if we've found the decimal point
 				mpz_set_ui(denominator, pow(10, i)); // set the denominator to 10 ^ i
 				break;
@@ -49,9 +49,9 @@ CyValue *cy_value_new_num(wchar_t *num_as_str) {
 	}
 
 	wchar_t *numerator_str = malloc(0); // initialise on the heap, so it can be dynamically appended to with append_str
-	for (int i = 0; i < wcslen(num_as_str); i++) {
+	for (int i = 0; i < wcslen(num_as_str); ++i) {
 		if (num_as_str[i] != DEC_PLACE) { // if the char is not a decimal place
-			wchar_t *chr_as_str = chr_to_str(num_as_str[i]); // store it as a wide char string
+			wchar_t *chr_as_str = chr_to_wcs(num_as_str[i]); // store it as a wide char string
 			append_str_and_free(&numerator_str, chr_as_str); // then append to numerator_str
 		}
 	}
@@ -152,7 +152,7 @@ wchar_t *stringify_cy_value(CyValue *value) {
 			return L"[]";
 		}
 		append_str(&ret, L"[ "); // append the opening bracket
-		for (int i = 0; i < list->size; i++) { // for each item
+		for (int i = 0; i < list->size; ++i) { // for each item
 			wchar_t *item; // string to store the item to append
 			bool should_free = false; // whether `item` is heap allocated
 			if (cy_value_is_str(*list->values[i])) { // if the item is a string
@@ -199,7 +199,7 @@ CyValueList *empty_cy_value_list(void) {
 // free all memory associated with a CyValueList
 void free_cy_value_list(CyValueList *list) {
 	// free all values in the list
-	for (int i = 0; i < list->size; i++) {
+	for (int i = 0; i < list->size; ++i) {
 		free_cy_value(list->values[i]);
 	}
 
@@ -238,7 +238,7 @@ bool cy_value_eq(CyValue lhs, CyValue rhs) {
 		CyValueList *lhs_as_list = (CyValueList *)lhs.other;
 		CyValueList *rhs_as_list = (CyValueList *)rhs.other;
 		if (lhs_as_list->size == rhs_as_list->size) {
-			for (int i = 0; i < lhs_as_list->size; i++) {
+			for (int i = 0; i < lhs_as_list->size; ++i) {
 				if (!cy_value_eq(*lhs_as_list->values[i], *rhs_as_list->values[i])) {
 					return false;
 				}

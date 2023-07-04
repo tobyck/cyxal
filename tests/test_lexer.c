@@ -4,52 +4,61 @@
 #include "../src/parser/lexer.h"
 
 // syntax sugar
-
 #define token_eq(a, b) (a.type == b.type && wcscmp(a.src, b.src) == 0)
 
-bool tokens_eq(CyTokenArray *a, CyTokenArray *b) {
+// checks if two CyTokenLists are equal
+bool tokens_eq(CyTokenList *a, CyTokenList *b) {
+	// return false if the sizes are different
 	if (a->size != b->size) {
 		return false;
 	}
-	for (int i = 0; i < a->size; i++) {
+
+	for (int i = 0; i < a->size; ++i) {
 		if (!token_eq(a->tokens[i], b->tokens[i])) {
 			return false;
 		}
 	}
+
 	return true;
 }
 
-void print_cy_token_array(CyTokenArray *tokens) {
-	for (int i = 0; i < tokens->size; i++) {
-		printf("%ls", stringify_cy_token(tokens->tokens[i]));
+void print_cy_token_list(CyTokenList *tokens) {
+	for (int i = 0; i < tokens->size; ++i) {
+		wchar_t *stringified_token = stringify_cy_token(tokens->tokens[i]);
+		printf("%ls", stringified_token);
+		free(stringified_token);
+		// print comma if not last token
 		if (tokens->size - i > 1) printf(", ");
 	}
 	printf("\n");
 }
 
-CyTokenArray *cy_token_array_from(size_t size, CyToken tokens[]) {
-	CyTokenArray *array = new_cy_token_array();
-	for (int i = 0; i < size; i++) {
-		push_cy_token(array, tokens[i]);
+CyTokenList *cy_token_list_from(size_t size, CyToken tokens[]) {
+	CyTokenList *ret = new_cy_token_list();
+
+	for (int i = 0; i < size; ++i) {
+		push_cy_token(ret, tokens[i]);
 	}
-	return array;
+
+	return ret;
 }
 
 bool run_lexer_test(wchar_t *str, size_t size, CyToken exp_tokens[]) {
-	CyTokenArray *tokens = lex(str);
+	CyTokenList *tokens = lex(str);
+	CyTokenList *expected = cy_token_list_from(size, exp_tokens);
 
-	CyTokenArray *expected = cy_token_array_from(size, exp_tokens);
 	bool result = tokens_eq(tokens, expected);
+
 	if (!result) {
 		printf("\nExpected: ");
-		print_cy_token_array(expected);
+		print_cy_token_list(expected);
 		printf("     Got: ");
-		print_cy_token_array(tokens);
+		print_cy_token_list(tokens);
 	}
-	free(tokens->tokens);
-	free(tokens);
-	free(expected->tokens);
-	free(expected);
+
+	free_cy_token_list(tokens);
+	free_cy_token_list(expected);
+
 	return result;
 }
 
