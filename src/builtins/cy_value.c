@@ -146,7 +146,7 @@ wchar_t *stringify_cy_value(CyValue *value) {
 	} else if (value->type == StringType) {
 		ret = value->other;
 	} else if (value->type == ListType) {
-		CyValueList *list = (CyValueList *)value->other; // variable for the list case to a (CyValueList *) from (void *)
+		CyValueList *list = (CyValueList *)value->other; // variable for the list cast to a (CyValueList *) from (void *)
 		// if the list is empty, return "[]"
 		if (list->size == 0) {
 			return L"[]";
@@ -154,25 +154,19 @@ wchar_t *stringify_cy_value(CyValue *value) {
 		append_str(&ret, L"[ "); // append the opening bracket
 		for (int i = 0; i < list->size; ++i) { // for each item
 			wchar_t *item; // string to store the item to append
-			bool should_free = false; // whether `item` is heap allocated
 			if (cy_value_is_str(*list->values[i])) { // if the item is a string
 				// append the string with quotes around it
 				item = malloc(0);
 				append_str(&item, L"\"");
 				append_str(&item, list->values[i]->other);
 				append_str(&item, L"\"");
-				should_free = true;
 			} else {
 				// otherwise stringify the item normally
-				item = stringify_cy_value(list->values[i]); // stringify the item to append
+				item = stringify_cy_value(list->values[i]);
 			}
 			// add item to final string and append comma
-			append_str(&ret, item);
+			append_str_and_free(&ret, item);
 			append_str(&ret, L", ");
-			// free the item if it was heap allocated
-			if (should_free) {
-				free(item);
-			}
 		}
 		wcscpy(ret + wcslen(ret) - 2, L" ]"); // replace the last ", " with " ]"
 	} else if (value->type == FunctionType) {

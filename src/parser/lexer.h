@@ -41,7 +41,7 @@ typedef struct {
 
 extern CyTokenList *new_cy_token_list(void);
 extern void push_cy_token(CyTokenList *list, CyToken token);
-extern void free_cy_token_list(CyTokenList *list);
+extern void free_cy_token_list(CyTokenList *list, bool free_src);
 
 // the lex function
 

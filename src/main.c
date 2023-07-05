@@ -11,7 +11,7 @@
 int main() {
 	setlocale(LC_ALL, "");
 
-	// all of the following tests don't leak memory :)
+	// everything done here doesn't leak memory :)
 
 	/*CyValue *num = cy_value_new_num(L"-.23");
 	wchar_t *stringified_num = stringify_cy_value(num);
@@ -27,7 +27,11 @@ int main() {
 
 	/*CyValueList *list = empty_cy_value_list();
 	push_cy_value(list, cy_value_new_num(L"4.5"));
-	free_cy_value_list(list);*/
+	CyValue *list_val = cy_value_new_list(list);
+	wchar_t *stringified_list = stringify_cy_value(list_val);
+	printf("%ls\n", stringified_list);
+	free(stringified_list);
+	free_cy_value(list_val);*/
 
 	/*StackList *stacks = empty_stack_list();
 	push_empty_stack(stacks);
@@ -49,16 +53,8 @@ int main() {
 	printf("%ls\n", ctx->output);
 	free_cy_context(ctx);*/
 
-	/*wchar_t *str1 = malloc(4);
-	swprintf(str1, 4, L"abc");
-
-	wchar_t *str2 = malloc(0);
-	append_str_and_free(&str2, str1);
-
-	printf("%ls\n", str2);
-	free(str2);*/
-
-	/*CyTokenList *tokens = lex(L"`he\\`llo` `abc");
+	// lexer test
+	/*CyTokenList *tokens = lex(L"2 3H+");
 
 	for (int i = 0; i < tokens->size; ++i) {
 		wchar_t *str = stringify_cy_token(tokens->tokens[i]);
@@ -66,9 +62,9 @@ int main() {
 		free(str);
 	}
 
-	free_cy_token_list(tokens);*/
+	free_cy_token_list(tokens, true);*/
 
-	// test_lexer();
+	run_tests();
 
 	return 0;
 }

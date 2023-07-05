@@ -56,8 +56,8 @@ bool run_lexer_test(wchar_t *str, size_t size, CyToken exp_tokens[]) {
 		print_cy_token_list(tokens);
 	}
 
-	free_cy_token_list(tokens);
-	free_cy_token_list(expected);
+	free_cy_token_list(tokens, true);
+	free_cy_token_list(expected, false);
 
 	return result;
 }

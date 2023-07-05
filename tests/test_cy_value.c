@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <wchar.h>
 #include "../src/builtins/cy_value.h"
 
 void test_cy_value(void) {
@@ -14,7 +16,18 @@ void test_cy_value(void) {
 	push_cy_value(list3->other, cy_value_new_str(L"123"));
 	push_cy_value(list3->other, list2);
 
-	printf("%ls\n", stringify_cy_value(list3));
+	wchar_t *str = stringify_cy_value(list3);
+	wchar_t *expected = L"[ 625/1000, \"123\", [ [ \"abc\" ], 32/10 ] ]";
+
+	if (wcscmp(str, expected) == 0) {
+		printf("CyValues stringifying properly         \x1B[32mPASSED\x1B[0m\n");
+	} else {
+		printf("CyValues not stringifying properly     \x1B[31mFAILED\x1B[0m\n\n");
+		printf("Expected: %ls\n", expected);
+		printf("     Got: %ls\n\n", str);
+	}
+
+	free(str);
 
 	free_cy_value(list3);
 }
