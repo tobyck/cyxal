@@ -1,7 +1,5 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <wchar.h>
-#include <string.h>
 #include "elements.h"
 #include "../helpers.h"
 
@@ -47,8 +45,7 @@ element(add) {
 
 element(vectorising_add) {
 	CyElement el = {NULL, add, 2, 1};
-	CyValueList args = pop_args(ctx, el.arity_in);
-	push_cy_value(last_stack(ctx->stacks), vectorise(ctx, el, args));
+	vectorise(ctx, el);
 }
 
 /*
@@ -82,8 +79,7 @@ element(halve) {
 
 element(vectorising_halve) {
 	CyElement el = {NULL, halve, 1, 1};
-	CyValueList args = pop_args(ctx, el.arity_in);
-	push_cy_value(last_stack(ctx->stacks), vectorise(ctx, el, args));
+	vectorise(ctx, el);
 }
 
 /*
@@ -116,6 +112,11 @@ CyElementList *empty_cy_element_list(void) {
 	list->elements = malloc(0);
 	list->size = 0;
 	return list;
+}
+
+void free_cy_element_list(CyElementList *list) {
+	free(list->elements);
+	free(list);
 }
 
 // appends an element to a list of elements
@@ -159,6 +160,7 @@ CyElement get_element(CyElementList *list, wchar_t *symbol) {
 			return list->elements[i];
 		}
 	}
+
 	return (CyElement){};
 }
 

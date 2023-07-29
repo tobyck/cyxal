@@ -23,10 +23,10 @@ extern void cy_error(CyContext *ctx, wchar_t *message);
 
 extern StackList *empty_stack_list(void);
 extern void free_stack_list(StackList *list);
-extern void push_empty_stack(StackList *ctx);
+extern CyValueList *push_empty_stack(StackList *ctx);
 extern CyValueList *last_stack(StackList *stacks);
-extern CyValueList *pop_stack(StackList *stacks);
+extern void pop_and_free_stack(StackList *stacks);
 extern CyValue *pop_arg(CyContext *ctx);
-extern CyValueList pop_args(CyContext *ctx, size_t n);
+extern CyValueList *pop_args(CyContext *ctx, size_t n);
 
 #endif // CYXAL_CONTEXT_H

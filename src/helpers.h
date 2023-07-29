@@ -31,9 +31,8 @@
 #define SET_VAR L'→'
 #define CHAR_NUMBER L'⁺'
 
-// useful functions
-
-extern CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList args);
+extern void vectorise(CyContext *ctx, CyElement element);
+//extern CyValue *vectorise(CyContext *ctx, CyElement element, CyValueList *args);
 extern bool contains(wchar_t *str, wchar_t chr);
 extern wchar_t *append_str(wchar_t **dest, wchar_t *src);
 extern wchar_t *append_str_and_free(wchar_t **dest, wchar_t *src);

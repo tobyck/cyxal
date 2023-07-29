@@ -36,6 +36,7 @@ typedef struct {
 // functions for initialising and accessing CyElementLists
 
 extern CyElementList *empty_cy_element_list(void);
+extern void free_cy_element_list(CyElementList *list);
 extern void add_element(CyElementList *list, CyElement element);
 extern CyElementList *get_elements(void);
 extern CyElement get_element(CyElementList *list, wchar_t *symbol);

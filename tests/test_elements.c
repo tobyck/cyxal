@@ -1,11 +1,5 @@
-/*
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <wchar.h>
-#include "../src/context.h"
-#include "../src/helpers.h"
-#include "../src/builtins/cy_value.h"
+#include <stdarg.h>
+
 #include "../src/builtins/elements.h"
 
 typedef struct {
@@ -15,61 +9,30 @@ typedef struct {
 
 typedef struct {
 	CyElement element;
-	size_t test_amt;
+	size_t num_of_tests;
 	TestCase *tests;
 } ElementTest;
 
-// stringify an element test
-wchar_t *stringify_element_test(ElementTest test) {
-	wchar_t *ret = malloc(0);
-
-	append_str(&ret, L"Element ");
-	append_str(&ret, test.element.symbol);
-	append_str(&ret, L":\n");
-	append_str(&ret, L"  Tests:\n");
-
-	for (int i = 0; i < test.test_amt; ++i) {
-		append_str(&ret, L"  ");
-		for (int j = 0; j < test.element.arity_in; ++j) {
-			append_str(&ret, stringify_cy_value(test.tests[i].args[j]));
-		}
-		append_str(&ret, L" -> ");
-		for (int j = 0; j < test.element.arity_out; ++j) {
-			append_str(&ret, stringify_cy_value(test.tests[i].output[j]));
-		}
-		append_str(&ret, L"\n");
-	}
-
-	return ret;
-}
-
-ElementTest new_element_test(wchar_t *symbol, size_t test_amt, ...) {
-	CyElement element = get_element(get_elements(), symbol);
+ElementTest new_element_test(wchar_t *symbol, size_t num_of_tests, ...) {
+	CyElementList *elements = get_elements();
+	CyElement element = get_element(elements, symbol);
+	free_cy_element_list(elements);
 
 	va_list args;
-	va_start(args, test_amt);
-	TestCase test_cases[test_amt];
-	for (int i = 0; i < test_amt; ++i) {
+	va_start(args, num_of_tests);
+
+	TestCase test_cases[num_of_tests];
+	for (int i = 0; i < num_of_tests; ++i) {
 		test_cases[i] = va_arg(args, TestCase);
 	}
+
 	va_end(args);
 
-	ElementTest ret = {element, test_amt, test_cases};
-
-	return ret;
-}
-
-int run_element_test(int *total, ElementTest test) {
-	printf("%ls\n", stringify_element_test(test));
-	return 0;
+	return (ElementTest){element, num_of_tests, test_cases};
 }
 
 void test_elements(void) {
-	int total_tests = 0;
-	int passed_amt = 0;
-
-	passed_amt += run_element_test(
-		&total_tests,
+	ElementTest tests[] = {
 		new_element_test(
 			L"+",
 			1,
@@ -77,70 +40,84 @@ void test_elements(void) {
 				(CyValue *[]){cy_value_new_num(L"2"), cy_value_new_num(L"3")},
 				(CyValue *[]){cy_value_new_num(L"5")}
 			}
-			*/
-/*(TestCase){
-				(CyValue *[]){cy_value_new_num(L"1.2"), cy_value_new_num(L".3")},
-				(CyValue *[]){cy_value_new_num(L"1.5")}
-			},
-			(TestCase){
-				(CyValue *[]){cy_value_new_str(L"abc"), cy_value_new_str(L"ABC")},
-				(CyValue *[]){cy_value_new_str(L"abcABC")}
-			},
-			(TestCase){
-				(CyValue *[]){cy_value_new_str(L"abc"), cy_value_new_num(L"123")},
-				(CyValue *[]){cy_value_new_str(L"abc123")}
-			}*//*
-
 		)
-	);
+	};
 
-	*/
-/*passed_amt += run_element_test(
-		&total_tests,
-		new_element_test(
-			L"½",
-			2,
-			new_test_case(
-				(CyValue *[]){cy_value_new_num(L"12")},
-				(CyValue *[]){cy_value_new_num(L"6")}
-			),
-			new_test_case(
-				(CyValue *[]){cy_value_new_num(L"-1.5")},
-				(CyValue *[]){cy_value_new_num(L"-0.75")}
-			)
-		)
-	);
+	int total = 0;
+	int passed = 0;
 
-	passed_amt += run_element_test(
-		&total_tests,
-		new_element_test(
-			L"ka",
-			1,
-			new_test_case(
-				(CyValue *[]){},
-				(CyValue *[]){cy_value_new_str(L"abcdefghijklmnopqrstuvwxyz")}
-			)
-		)
-	);
+	// for each element
+	for (int i = 0; i < sizeof(tests) / sizeof(ElementTest); ++i) {
+		ElementTest test = tests[i];
 
-	passed_amt += run_element_test(
-		&total_tests,
-		new_element_test(
-			L",",
-			1,
-			new_test_case(
-				(CyValue *[]){cy_value_new_num(L"123")},
-				(CyValue *[]){}
-			)
-		)
-	);*//*
+		// for each test case of the element
+		for (int j = 0; j < test.num_of_tests; ++j) {
+			TestCase test_case = test.tests[j];
 
+			// make a new context to run the test case
+			CyContext *ctx = new_cy_context(empty_cy_value_list());
+
+			// create a dynamic array from the arguments (just for printing later)
+			CyValueList *args_dynamic = empty_cy_value_list();
+
+			// reference to the last stack
+			CyValueList *_last_stack = last_stack(ctx->stacks);
+
+			// for each argument
+			for (int k = 0; k < test.element.arity_in; ++k) {
+				push_cy_value(args_dynamic, clone_cy_value(test_case.args[k]));
+				push_cy_value(_last_stack, clone_cy_value(test_case.args[k]));
+				free_cy_value(test_case.args[k]);
+			}
+
+			// run the element
+			test.element.func(ctx);
+
+			// assume that the test passed until proven otherwise
+			passed++;
+
+			for (int k = 0; k < _last_stack->size; ++k) {
+				CyValue *stack_value = _last_stack->values[k];
+				CyValue *output_value = test_case.output[k];
+
+				// if the returned value is not equal to the expected value or the element returned the wrong number of values
+				if (!cy_value_eq(*stack_value, *output_value)
+					|| _last_stack->size != test.element.arity_out) {
+					passed--; // decrement the total passed
+
+					printf("\n Element: %ls", test.element.symbol);
+					printf("\n    Args: %ls", stringify_cy_value_list(args_dynamic));
+					printf("\n     Got: %ls", stringify_cy_value_list(_last_stack));
+
+					CyValueList *expected = empty_cy_value_list();
+					for (int l = 0; l < test.element.arity_out; ++l) {
+						push_cy_value(expected, clone_cy_value(test_case.output[l]));
+					}
+
+					printf("\nExpected: %ls\n", stringify_cy_value_list(expected));
+
+					free_cy_value_list(expected);
+
+					break;
+				}
+			}
+
+			for (int k = 0; k < test.element.arity_out; ++k) {
+				free_cy_value(test_case.output[k]);
+			}
+
+			free_cy_value_list(args_dynamic);
+
+			free_cy_context(ctx);
+
+			total++;
+		}
+	}
 
 	printf(
-		"%sElements: %d / %d tests passed           %s%d%%\x1B[0m\n",
-		passed_amt == total_tests ? "" : "\n",
-		passed_amt,
-		total_tests,
-		passed_amt == total_tests ? "\x1B[32m" : "\x1B[31m", (int)((double)passed_amt / total_tests * 100)
+		"Elements: %d / %d tests passed           %s%d%%\x1B[0m\n",
+		passed,
+		total,
+		passed == total ? "\x1B[32m" : " \x1B[31m", (int)((double)passed / total * 100)
 	);
-}*/
+}

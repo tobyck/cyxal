@@ -17,7 +17,7 @@ wchar_t *stringify_cy_token(CyToken token) {
 	wchar_t *type = malloc(3 * sizeof(wchar_t));
 	swprintf(type, 3, L"%d", token.type);
 
-	append_str(&str, type);
+	append_str_and_free(&str, type);
 	append_str(&str, L", src: \"");
 	append_str(&str, token.src);
 	append_str(&str, L"\" }");
@@ -66,7 +66,7 @@ CyTokenList *lex(wchar_t *code) {
 			push_cy_token(tokens, new_cy_token(NumberToken, token_src));
 			i++; // consume current char
 			bool has_dec = c == DEC_PLACE;
-			for (; i < wcslen(code) && (contains(DIGITS_WITH_DEC, code[i]) || code[i] == L'_'); ++i) {
+			for (; i < wcslen(code) && (contains(DIGITS_WITH_DEC, code[i]) || code[i] == NUMBER_DELIMETER); ++i) {
 				if (c == DEC_PLACE) {
 					if (has_dec) break;
 					has_dec = true;

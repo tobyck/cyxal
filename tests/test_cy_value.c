@@ -20,7 +20,7 @@ void test_cy_value(void) {
 	wchar_t *expected = L"[ 625/1000, \"123\", [ [ \"abc\" ], 32/10 ] ]";
 
 	if (wcscmp(str, expected) == 0) {
-		printf("CyValues stringifying properly         \x1B[32mPASSED\x1B[0m\n");
+		printf("\x1B[0mCyValues stringifying properly         \x1B[32mPASSED\x1B[0m\n");
 	} else {
 		printf("CyValues not stringifying properly     \x1B[31mFAILED\x1B[0m\n\n");
 		printf("Expected: %ls\n", expected);

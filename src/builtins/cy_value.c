@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <memory.h>
 #include <wchar.h>
 #include <math.h>
+
 #include "cy_value.h"
 #include "../helpers.h"
 
@@ -24,7 +26,6 @@ wchar_t *stringify_cy_type(CyType type) {
 CyValue *cy_value_new_empty(CyType type) {
 	CyValue *value = malloc(sizeof(CyValue)); // allocate just enough memory
 	value->type = type;
-	value->can_free = false;
 	return value;
 }
 
@@ -134,49 +135,22 @@ void free_cy_value(CyValue *value) {
 
 // returns a string representation of a CyValue
 wchar_t *stringify_cy_value(CyValue *value) {
-	wchar_t *ret = malloc(0);
+	wchar_t *ret;
 
 	if (value->type == NumberType) {
-		char *normal_str = mpq_get_str(
-			NULL, 10, value->number
-		); // use a builtin gmp function to stringify into base 10
-		free(ret);
+		char *normal_str = mpq_get_str(NULL, 10, value->number); // use a builtin gmp function to stringify into base 10
 		ret = str_to_wcs(normal_str);
 		free(normal_str);
 	} else if (value->type == StringType) {
-		ret = value->other;
+		// set ret to value->other as a string and make sure it's on the heap
+		ret = wcsdup(value->other);
 	} else if (value->type == ListType) {
-		CyValueList *list = (CyValueList *)value->other; // variable for the list cast to a (CyValueList *) from (void *)
-		// if the list is empty, return "[]"
-		if (list->size == 0) {
-			return L"[]";
-		}
-		append_str(&ret, L"[ "); // append the opening bracket
-		for (int i = 0; i < list->size; ++i) { // for each item
-			wchar_t *item; // string to store the item to append
-			if (cy_value_is_str(*list->values[i])) { // if the item is a string
-				// append the string with quotes around it
-				item = malloc(0);
-				append_str(&item, L"\"");
-				append_str(&item, list->values[i]->other);
-				append_str(&item, L"\"");
-			} else {
-				// otherwise stringify the item normally
-				item = stringify_cy_value(list->values[i]);
-			}
-			// add item to final string and append comma
-			append_str_and_free(&ret, item);
-			append_str(&ret, L", ");
-		}
-		wcscpy(ret + wcslen(ret) - 2, L" ]"); // replace the last ", " with " ]"
+		ret = stringify_cy_value_list(value->other);
 	} else if (value->type == FunctionType) {
-		ret = L"<function>";
+		ret = wcsdup(L"<function>");
 	} else {
 		fprintf(stderr, "stringify_cy_value: unknown type %d\n", value->type);
-	}
-
-	if (value->can_free) {
-		free_cy_value(value);
+		return NULL;
 	}
 
 	return ret;
@@ -185,9 +159,53 @@ wchar_t *stringify_cy_value(CyValue *value) {
 // creates an empty CyValueList; memory isn't allocated although pointers are initialised
 CyValueList *empty_cy_value_list(void) {
 	CyValueList *list = malloc(sizeof(CyValueList));
-	list->values = calloc(0, 0);
+	list->values = malloc(0);
 	list->size = 0;
 	return list;
+}
+
+CyValueList *clone_cy_value_list(CyValueList *list) {
+	CyValueList *new_list = empty_cy_value_list();
+
+	// TODO: more efficient way to do this?
+	for (int i = 0; i < list->size; ++i) {
+		push_cy_value(new_list, clone_cy_value(list->values[i]));
+	}
+
+	return new_list;
+}
+
+wchar_t *stringify_cy_value_list(CyValueList *list) {
+	wchar_t *ret = malloc(0);
+
+	// if the list is empty, return "[]"
+	if (list->size == 0) {
+		return L"[]";
+	}
+
+	append_str(&ret, L"[ "); // append the opening bracket
+
+	for (int i = 0; i < list->size; ++i) { // for each item
+		wchar_t *item; // string to store the item to append
+
+		if (cy_value_is_str(*list->values[i])) { // if the item is a string
+			// append the string with quotes around it
+			item = malloc(0);
+			append_str(&item, L"\"");
+			append_str(&item, list->values[i]->other);
+			append_str(&item, L"\"");
+		} else {
+			// otherwise stringify the item normally
+			item = stringify_cy_value(list->values[i]);
+		}
+		// add item to final string and append comma
+		append_str_and_free(&ret, item);
+		append_str(&ret, L", ");
+	}
+
+	wcscpy(ret + wcslen(ret) - 2, L" ]"); // replace the last ", " with " ]"
+
+	return ret;
 }
 
 // free all memory associated with a CyValueList
@@ -207,10 +225,6 @@ void free_cy_value_list(CyValueList *list) {
 void push_cy_value(CyValueList *list, CyValue *value) {
 	list->values = realloc(list->values, (list->size + 1) * sizeof(CyValue)); // realloc memory for the new item
 	list->values[list->size++] = value; // set the last slot of the array to the new item and increment size afterwards
-
-	if (value->can_free) {
-		free_cy_value(value);
-	}
 }
 
 // remove the last item of a CyValueList list and return it
@@ -244,4 +258,23 @@ bool cy_value_eq(CyValue lhs, CyValue rhs) {
 	} else {
 		return false;
 	}
+}
+
+CyValue *clone_cy_value(CyValue *value) {
+	CyValue *clone = malloc(sizeof(CyValue));
+
+	clone->type = value->type;
+
+	if (value->type == NumberType) {
+		mpq_init(clone->number);
+		mpq_set(clone->number, value->number);
+	} else if (value->type == StringType) {
+		clone->other = wcsdup(value->other);
+	} else if (value->type == ListType) {
+		clone->other = clone_cy_value_list(value->other);
+	} else if (value->type == FunctionType) {
+		clone->other = value->other;
+	}
+
+	return clone;
 }

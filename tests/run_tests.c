@@ -5,4 +5,5 @@
 void run_tests(void) {
 	test_cy_value();
 	test_lexer();
+	test_elements();
 }
