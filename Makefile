@@ -1,8 +1,8 @@
-CC = clang # compiler
-DB = lldb # debugger
+CC = clang
+DB = lldb
 OUT_DIR = build/debug
 OUT_FILE = $(OUT_DIR)/cyxal
-LEAKS_FLAGS = --atExit # flags for `leaks` command
+LEAKS_FLAGS = --atExit
 
 # adjust flags for `leaks` if trying to find source of memory leaks
 ifeq ($(MallocStackLogging),1)
@@ -14,7 +14,7 @@ endif
 build: src
 	$(CC) -Wall -lgmp src/*.c src/**/*.c -o $(OUT_FILE) $(FLAGS)
 
-debug-build:
+debug-build: src
 	make build FLAGS="-g"
 
 run: $(OUT_FILE)
@@ -41,3 +41,6 @@ endif
 include-gmp:
 	cp $(DIR)/.libs/libgmp.10.dylib /usr/local/lib
 	cp $(DIR)/gmp.h /usr/local/include
+
+install:
+	make build FLAGS="-O3" OUT_DIR=/usr/local/bin
