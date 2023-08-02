@@ -57,7 +57,7 @@ include-gmp:
 # testing
 
 build-tests: tests
-	$(CC) -Wal -lgmp -m $(FILES_FOR_TESTS) -o $(OUT_DIR)/test
+	$(CC) -Wal -lgmp -lm $(FILES_FOR_TESTS) -o $(OUT_DIR)/test
 
 test: build/test
 	./build/test
