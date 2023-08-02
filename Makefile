@@ -15,7 +15,7 @@ endif
 # build targets
 
 build: src
-	$(CC) -Wall -lgmp src/*.c src/**/*.c -o $(OUT_FILE) $(FLAGS)
+	$(CC) -Wall -lgmp -lm src/*.c src/**/*.c -o $(OUT_FILE) $(FLAGS)
 
 debug-build: src
 	make build FLAGS="-g"
@@ -57,7 +57,7 @@ include-gmp:
 # testing
 
 build-tests: tests
-	$(CC) -Wall $(FILES_FOR_TESTS) -o $(OUT_DIR)/test -lgmp
+	$(CC) -Wal -lgmp -m $(FILES_FOR_TESTS) -o $(OUT_DIR)/test
 
 test: build/test
 	./build/test

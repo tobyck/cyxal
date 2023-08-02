@@ -1,7 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <memory.h>
 #include <wchar.h>
 #include <math.h>
 

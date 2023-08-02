@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdbool.h>
 #include <wchar.h>
 #include "../src/parser/lexer.h"
