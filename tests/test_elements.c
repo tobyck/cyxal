@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <stdio.h>
 
 #include "../src/builtins/elements.h"
 
@@ -31,7 +32,7 @@ ElementTest new_element_test(wchar_t *symbol, size_t num_of_tests, ...) {
 	return (ElementTest){element, num_of_tests, test_cases};
 }
 
-void test_elements(void) {
+bool test_elements(void) {
 	ElementTest tests[] = {
 		new_element_test(
 			L"+",
@@ -120,4 +121,6 @@ void test_elements(void) {
 		total,
 		passed == total ? "\x1B[32m" : " \x1B[31m", (int)((double)passed / total * 100)
 	);
+
+	return passed == total;
 }

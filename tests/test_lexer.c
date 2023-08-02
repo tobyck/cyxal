@@ -62,7 +62,7 @@ bool run_lexer_test(wchar_t *str, size_t size, CyToken exp_tokens[]) {
 	return result;
 }
 
-void test_lexer(void) {
+bool test_lexer(void) {
 	int passed = 0;
 	int total = 0;
 
@@ -157,4 +157,6 @@ void test_lexer(void) {
 		total,
 		passed == total ? "\x1B[32m" : " \x1B[31m", (int)((double)passed / total * 100)
 	);
+
+	return passed == total;
 }

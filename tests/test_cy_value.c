@@ -3,7 +3,7 @@
 #include <wchar.h>
 #include "../src/builtins/cy_value.h"
 
-void test_cy_value(void) {
+bool test_cy_value(void) {
 	CyValue *list1 = cy_value_new_list(empty_cy_value_list());
 	push_cy_value(list1->other, cy_value_new_str(L"abc"));
 
@@ -19,8 +19,11 @@ void test_cy_value(void) {
 	wchar_t *str = stringify_cy_value(list3);
 	wchar_t *expected = L"[ 625/1000, \"123\", [ [ \"abc\" ], 32/10 ] ]";
 
+	bool passed = false;
+
 	if (wcscmp(str, expected) == 0) {
 		printf("\x1B[0mCyValues stringifying properly         \x1B[32mPASSED\x1B[0m\n");
+		passed = true;
 	} else {
 		printf("CyValues not stringifying properly     \x1B[31mFAILED\x1B[0m\n\n");
 		printf("Expected: %ls\n", expected);
@@ -30,4 +33,6 @@ void test_cy_value(void) {
 	free(str);
 
 	free_cy_value(list3);
+
+	return passed;
 }

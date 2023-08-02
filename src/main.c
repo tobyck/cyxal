@@ -1,12 +1,11 @@
 #include <locale.h>
-#include "../tests/run_tests.c"
-#include "parser/lexer.h"
 #include <stdlib.h>
 
 #include "context.h"
 #include "builtins/cy_value.h"
 #include "builtins/elements.h"
 #include "helpers.h"
+#include "parser/lexer.h"
 
 int main() {
 	setlocale(LC_ALL, "");
@@ -79,8 +78,6 @@ int main() {
 	}
 
 	free_cy_token_list(tokens, true);
-
-	run_tests();
 
 	return 0;
 }
