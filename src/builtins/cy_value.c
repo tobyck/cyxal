@@ -178,7 +178,8 @@ wchar_t *stringify_cy_value_list(CyValueList *list) {
 
 	// if the list is empty, return "[]"
 	if (list->size == 0) {
-		return L"[]";
+		append_str(&ret, L"[]");
+		return ret;
 	}
 
 	append_str(&ret, L"[ "); // append the opening bracket

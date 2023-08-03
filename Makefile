@@ -57,12 +57,4 @@ include-gmp:
 # testing
 
 build-tests: tests
-	$(CC) -Wal -lgmp -lm $(FILES_FOR_TESTS) -o $(OUT_DIR)/test
-
-test: build/test
-	./build/test
-
-# installation target for install.sh
-
-install:
-	sudo make build FLAGS="-O3" OUT_DIR=/usr/local/bin
+	$(CC) -Wall -lgmp -lm $(FILES_FOR_TESTS) -o $(OUT_DIR)/test $(FLAGS)
